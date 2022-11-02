@@ -8,7 +8,7 @@ import gym
 from skimage import io
 from model import QNetwork, get_parameters
 
-env = gym.make('ALE/Asterix-v5',full_action_space=False, obs_type='grayscale')
+env = gym.make('ALE/MsPacman-v5',full_action_space=False, obs_type='grayscale')
 
 if torch.cuda.is_available():  
   dev = "cuda:0" 
@@ -18,9 +18,9 @@ else:
 
 
 # train Q-network
-num_episodes = 10
+num_episodes = 100
 episode_limit = 300
-gamma = 1 # discount rate
+gamma = 0.9 # discount rate
 val_freq = 1 # validation frequency
 epsilon_start = 1.0
 
@@ -65,7 +65,8 @@ try:
             if done: break
         
         # bookkeeping
-        epsilon *= num_episodes/(i/(num_episodes/20)+num_episodes) # decrease epsilon
+        #epsilon *= num_episodes/(i/(num_episodes/20)+num_episodes) # decrease epsilon
+        #epsilon -= 0.0001
         epsilons.append(epsilon); rewards.append(ep_reward); lengths.append(j+1); losses.append(ep_loss)
         if (i+1) % val_freq == 0: print('{:5d} mean training reward: {:5.2f}'.format(i+1, np.mean(rewards[-val_freq:])))
     print('done')
