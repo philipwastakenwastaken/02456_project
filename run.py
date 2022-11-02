@@ -9,7 +9,8 @@ from skimage import io
 from model import QNetwork, get_parameters
 
 
-env = gym.make('ALE/Asterix-v5',full_action_space=False, obs_type='grayscale',render_mode='human')
+# env = gym.make('ALE/Asterix-v5',full_action_space=False, obs_type='grayscale',render_mode='human')
+env = gym.make('ALE/Asterix-v5',full_action_space=False, obs_type='grayscale')
 
 n_inputs, n_outputs, learning_rate = get_parameters() 
 qnet = QNetwork(n_inputs, n_outputs, learning_rate)
@@ -20,18 +21,29 @@ if torch.cuda.is_available():
 else:  
   dev = "cpu"  
 
+rewardList = []
 
-s = env.reset()
+for i in range(200):
+    s = env.reset()
 
-R = 0
-for i in range(2000):
-    a = qnet(torch.from_numpy(s.reshape((1,1,210,160))).float()).argmax().item()
-    s, r, done, _ = env.step(a)
+    R = 0
+    for j in range(20000):
+        a = qnet(torch.from_numpy(s.reshape((1, 1, 210, 160))).float()).argmax().item()
+        s, r, done, _ = env.step(a)
 
-    R += r
+        R += r
 
-    if done: 
-        print("Died at frame:",i)
-        break
+        if done:
+            print("Died at frame:", j)
+            break
 
-print("Total reward", R)
+    rewardList.append(R)
+
+    print("Total reward in round {} is {}.".format(i, R))
+
+
+plt.plot(rewardList)
+plt.xlabel('Round')
+plt.ylabel('mean training reward')
+plt.show()
+
