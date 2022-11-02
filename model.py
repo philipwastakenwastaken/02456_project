@@ -5,7 +5,10 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 import gym
+import random
 from skimage import io
+from collections import deque
+
 
 
 
@@ -31,23 +34,47 @@ class QNetwork(nn.Module):
 
         self.optimizer = optim.Adam(self.parameters(), lr=learning_rate)
 
+    
     def forward(self, x):
         x = x / 255.0
         x = self.conv1(x)
         x = F.relu(x)
         x = self.pool1(x)
-
-        x = x.flatten()
+        b_size = x.shape[0]
+        x = x.reshape((b_size,15200))
         x = self.out(x)
-        
-
-
         return x
     
+
     def loss(self, q_outputs, q_targets):
         return torch.sum(torch.pow(q_targets - q_outputs, 2))
 
 
+    def update_params(self, new_params, tau):
+        params = self.state_dict()
+        for k in params.keys():
+            params[k] = (1-tau) * params[k] + tau * new_params[k]
+        self.load_state_dict(params)
+
+
+
+class ReplayMemory(object):
+    """Experience Replay Memory"""
+    
+    def __init__(self, capacity):
+        #self.size = size
+        self.memory = deque(maxlen=capacity)
+    
+    def add(self, *args):
+        """Add experience to memory."""
+        self.memory.append([*args])
+    
+    def sample(self, batch_size):
+        """Sample batch of experiences from memory with replacement."""
+        return random.sample(self.memory, batch_size)
+    
+    def count(self):
+        return len(self.memory)
 
 def get_parameters():
     input_size = 22528

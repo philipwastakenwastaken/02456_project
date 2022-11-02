@@ -8,7 +8,7 @@ import gym
 from skimage import io
 from model import QNetwork, get_parameters
 
-env = gym.make('ALE/MsPacman-v5',full_action_space=False, obs_type='grayscale')
+env = gym.make('ALE/Asterix-v5',full_action_space=False, obs_type='grayscale')
 
 if torch.cuda.is_available():  
   dev = "cuda:0" 
