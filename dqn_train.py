@@ -7,7 +7,8 @@ import torch.nn.functional as F
 import gym
 from skimage import io
 from model import QNetwork, ReplayMemory,get_parameters
-
+import warnings
+warnings.filterwarnings("ignore")
 
 # Initialize environment
 env = gym.make('ALE/Asterix-v5',full_action_space=False, obs_type='grayscale')
@@ -17,15 +18,16 @@ if torch.cuda.is_available():
   dev = "cuda:0" 
 else:  
   dev = "cpu"  
+print(f'< Device: {dev}>')
 
 # Train parameters 
-num_episodes = 20 # number of games
+num_episodes = 100 # number of games
 episode_limit = 300 # game length (in frames)
 gamma = 0.9 # discount rate
 val_freq = 1 # validation frequency
 epsilon_start = 1.0 # amount of randomness
 
-batch_size = 8 # batch size
+batch_size = 64 # batch size
 tau = 0.01 # target network update rate
 replay_memory_capacity = 100 # (?)
 prefill_memory = True #(?)
@@ -53,7 +55,7 @@ if prefill_memory:
 # Training loop
 try:
     print('< start training >')
-    epsilon = 1.0
+    epsilon = epsilon_start
     rewards, lengths, losses, epsilons = [], [], [], []
     for i in range(num_episodes):
         
@@ -114,7 +116,8 @@ try:
             if d: break
 
         # bookkeeping
-        epsilon *= num_episodes/(i/(num_episodes/20)+num_episodes) # decrease epsilon
+        #epsilon *= num_episodes/(i/(num_episodes/20)+num_episodes) # decrease epsilon
+        epsilon -= 0.001
         epsilons.append(epsilon); rewards.append(ep_reward); lengths.append(j+1); losses.append(ep_loss)
         if (i+1) % val_freq == 0: print('%5d mean training reward: %5.2f' % (i+1, np.mean(rewards[-val_freq:])))
     

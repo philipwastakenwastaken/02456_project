@@ -7,13 +7,14 @@ import torch.nn.functional as F
 import gym
 from skimage import io
 from model import QNetwork, get_parameters
+import warnings
+warnings.filterwarnings("ignore")
 
-
-env = gym.make('ALE/MsPacman-v5',full_action_space=False, obs_type='grayscale',render_mode='human')
+env = gym.make('ALE/Asterix-v5',full_action_space=False, obs_type='grayscale',render_mode='human') # 
 
 n_inputs, n_outputs, learning_rate = get_parameters() 
-qnet = QNetwork(n_inputs, n_outputs, learning_rate)
-qnet.load_state_dict(torch.load('qnet.pt'))
+dqnet = QNetwork(n_inputs, n_outputs, learning_rate)
+dqnet.load_state_dict(torch.load('dqnet.pt'))
 
 if torch.cuda.is_available():  
   dev = "cuda:0" 
@@ -25,7 +26,7 @@ s = env.reset()
 
 R = 0
 for i in range(2000):
-    a = qnet(torch.from_numpy(s.reshape((1,1,210,160))).float()).argmax().item()
+    a = dqnet(torch.from_numpy(s.reshape((1,1,210,160))).float()).argmax().item()
     s, r, done, _ = env.step(a)
 
     R += r
