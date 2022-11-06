@@ -6,8 +6,10 @@ import hydra
 from hydra.utils import get_original_cwd
 from omegaconf import DictConfig
 
+import os
 
 from dqn_train import train_dq_model
+from eval import eval_model
 from model import QNetwork
 
 class Session:
@@ -17,12 +19,14 @@ class Session:
         session_params = config.session
         train_params = config.train
         model_params = config.model
-        #eval_params = config.evaluate
+        eval_params = config.eval
 
         # Setup seeds for predictability
         torch.manual_seed(session_params["seed"])
         random.seed(session_params['seed'])
         np.random.seed(session_params['seed'])
+
+        self.model_path = os.path.join(get_original_cwd(), 'models/dqnet.pt')
 
         # Setup GPU
         if torch.cuda.is_available():
@@ -42,26 +46,25 @@ class Session:
             print('train!')
             self.train(train_params)
         elif session_params['command'] == 'evaluate':
-            self.evaluate()
+            self.evaluate(eval_params)
         else:
             raise Exception('Unknown command')
 
     def train(self, train_params):
-        train_dq_model(self.dev, train_params, self.model, self.target_model)
+        train_dq_model(self.dev, train_params, self.model, self.target_model, self.model_path)
 
-    def evaluate(self):
-        pass
+    def evaluate(self, eval_params):
+        self.model.load_state_dict(torch.load(self.model_path))
+
+        total_reward = eval_model(self.dev, eval_params, self.model)
 
     def setup_model(self):
         pass
 
 
-
-
 @hydra.main(config_path="hparams/", config_name="default_config")
 def objective(config: DictConfig):
-    sess = Session(config)
-    return 0
+    Session(config)
 
 
 if __name__ == '__main__':

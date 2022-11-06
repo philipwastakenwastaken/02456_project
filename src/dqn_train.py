@@ -10,7 +10,7 @@ from model import QNetwork, ReplayMemory
 import warnings
 warnings.filterwarnings("ignore")
 
-def train_dq_model(dev, train_params, dqnet, target):
+def train_dq_model(dev, train_params, dqnet, target, model_path):
     # Initialize environment
     env = gym.make('ALE/Asterix-v5',full_action_space=False, obs_type='grayscale')
 
@@ -117,4 +117,4 @@ def train_dq_model(dev, train_params, dqnet, target):
         print('interrupt')
 
     # Save network weights
-    torch.save(dqnet.state_dict(), 'models/dqnet.pt',_use_new_zipfile_serialization=False)
+    torch.save(dqnet.state_dict(), model_path, _use_new_zipfile_serialization=False)
