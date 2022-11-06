@@ -10,20 +10,19 @@ from model import QNetwork, get_parameters
 
 
 
-def train_model(dev):
+def train_model(dev, train_params, qnet):
     env = gym.make('ALE/Asterix-v5',full_action_space=False, obs_type='grayscale')
 
+    # train Q-network
+    num_episodes = train_params['num_episodes']
+    episode_limit = train_params['episode_limit']
+    gamma = train_params['gamma'] # discount rate
+    val_freq = train_params['val_freq'] # validation frequency
+    epsilon_start = train_params['epsilon_start']
 
-
-# train Q-network
-    num_episodes = 100
-    episode_limit = 300
-    gamma = 0.9 # discount rate
-    val_freq = 1 # validation frequency
-    epsilon_start = 1.0
-
+    print(train_params)
     n_inputs, n_outputs, learning_rate = get_parameters()
-    qnet = QNetwork(n_inputs, n_outputs, learning_rate)
+    #qnet = QNetwork(n_inputs, n_outputs, learning_rate)
     qnet.to(torch.device(dev))
 
     try:
@@ -71,5 +70,4 @@ def train_model(dev):
     except KeyboardInterrupt:
         print('interrupt')
 
-
-    torch.save(qnet.state_dict(), 'qnet.pt',_use_new_zipfile_serialization=False)
+    torch.save(qnet.state_dict(), '../models/qnet.pt',_use_new_zipfile_serialization=False)

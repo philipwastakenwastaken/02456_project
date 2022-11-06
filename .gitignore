@@ -1,3 +1,8 @@
 *.pt
+
+# Python stuff
 __pycache__/
 env/
+
+# Hydra
+outputs/

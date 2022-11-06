@@ -2,3 +2,4 @@
 defaults:
   - model: exp1
   - session: train
+  - train: exp1

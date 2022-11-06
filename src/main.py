@@ -15,7 +15,7 @@ class Session:
     def __init__(self, config):
         # Retrieve data from config files
         session_params = config.session
-        #train_params = config.training
+        train_params = config.train
         model_params = config.model
         #eval_params = config.evaluate
 
@@ -36,14 +36,14 @@ class Session:
 
         if session_params['command'] == 'train':
             print('train!')
-            self.train()
+            self.train(train_params)
         elif session_params['command'] == 'evaluate':
             self.evaluate()
         else:
             raise Exception('Unknown command')
 
-    def train(self):
-        pass
+    def train(self, train_params):
+        train_model(self.dev, train_params, self.model)
 
     def evaluate(self):
         pass
