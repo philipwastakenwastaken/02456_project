@@ -5,6 +5,7 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 import gym
+from gym.wrappers import FrameStack
 from skimage import io
 from model import QNetwork, ReplayMemory
 import warnings
@@ -13,6 +14,7 @@ warnings.filterwarnings("ignore")
 def train_dq_model(dev, train_params, dqnet, target, model_path):
     # Initialize environment
     env = gym.make('ALE/Asterix-v5',full_action_space=False, obs_type='grayscale')
+    env = FrameStack(env, train_params['frame_stack_size'])
 
     # Train parameters
     num_episodes = train_params['num_episodes']
