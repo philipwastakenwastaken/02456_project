@@ -7,7 +7,7 @@ from hydra.utils import get_original_cwd
 from omegaconf import DictConfig
 
 
-from qnet_train import train_model
+from dqn_train import train_dq_model
 from model import QNetwork
 
 class Session:
@@ -34,6 +34,10 @@ class Session:
                               n_outputs=model_params['n_outputs'],
                               learning_rate=model_params['learning_rate'])
 
+        self.target_model = QNetwork(n_inputs=model_params['n_inputs'],
+                                     n_outputs=model_params['n_outputs'],
+                                     learning_rate=model_params['learning_rate'])
+
         if session_params['command'] == 'train':
             print('train!')
             self.train(train_params)
@@ -43,7 +47,7 @@ class Session:
             raise Exception('Unknown command')
 
     def train(self, train_params):
-        train_model(self.dev, train_params, self.model)
+        train_dq_model(self.dev, train_params, self.model, self.target_model)
 
     def evaluate(self):
         pass

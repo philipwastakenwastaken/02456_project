@@ -9,7 +9,9 @@ from skimage import io
 from model import QNetwork, get_parameters
 
 
-
+###
+### FUNCTION HAS BEEN DEPRECATED, REFER TO dqn_train.py
+###
 def train_model(dev, train_params, qnet):
     env = gym.make('ALE/Asterix-v5',full_action_space=False, obs_type='grayscale')
 

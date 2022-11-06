@@ -19,14 +19,14 @@ class QNetwork(nn.Module):
     def __init__(self, n_inputs, n_outputs, learning_rate):
         super(QNetwork, self).__init__()
         n_hidden = 2500
-        
+
         self.conv1 = nn.Conv2d(in_channels=1,
                              out_channels=32,
                              kernel_size=8,
                              stride=4,
                              padding=0)
         #self.pool1 = nn.MaxPool2d(3,stride=2)
-        
+
         self.conv2 = nn.Conv2d(in_channels=32,
                              out_channels=64,
                              kernel_size=4,
@@ -49,10 +49,10 @@ class QNetwork(nn.Module):
 
         self.optimizer = optim.Adam(self.parameters(), lr=learning_rate)
 
-    
+
     def forward(self, x):
         x = x / 255.0
-        
+
         x = self.conv1(x)
         x = F.relu(x)
         #x = self.pool1(x)
@@ -69,7 +69,7 @@ class QNetwork(nn.Module):
         x = x.reshape((b_size,self.flat_dim))
         x = self.out(x)
         return x
-    
+
 
     def loss(self, q_outputs, q_targets):
         return torch.sum(torch.pow(q_targets - q_outputs, 2))
@@ -85,25 +85,18 @@ class QNetwork(nn.Module):
 
 class ReplayMemory(object):
     """Experience Replay Memory"""
-    
+
     def __init__(self, capacity):
         #self.size = size
         self.memory = deque(maxlen=capacity)
-    
+
     def add(self, *args):
         """Add experience to memory."""
         self.memory.append([*args])
-    
+
     def sample(self, batch_size):
         """Sample batch of experiences from memory with replacement."""
         return random.sample(self.memory, batch_size)
-    
+
     def count(self):
         return len(self.memory)
-
- 
-def get_parameters():
-    input_size = 22528
-    output_size = 9
-    learning_rate = 3e-4 
-    return input_size, output_size, learning_rate
