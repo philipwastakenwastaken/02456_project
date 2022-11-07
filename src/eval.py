@@ -10,8 +10,8 @@ from env_factory import make_env
 import warnings
 warnings.filterwarnings("ignore")
 
-def eval_model(dev, eval_params, dqnet, env_params):
-    env = make_env(env_params, render_mode='human')
+def eval_model(dev, eval_params, dqnet, env_params, humanMode=True):
+    env = make_env(env_params, render_mode='human') if humanMode else make_env(env_params)
     s = env.reset()
 
     R = 0
@@ -23,7 +23,7 @@ def eval_model(dev, eval_params, dqnet, env_params):
 
         if done:
             print("Died at frame:",i)
-            break
+            return R, i
 
     print("Total reward", R)
     return R

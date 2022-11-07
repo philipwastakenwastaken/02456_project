@@ -11,6 +11,7 @@ import os
 from dqn_train import train_dq_model
 from eval import eval_model
 from model import QNetwork
+from plotting import Plot
 
 class Session:
 
@@ -49,6 +50,8 @@ class Session:
             self.train(train_params, env_params)
         elif session_params['command'] == 'evaluate':
             self.evaluate(eval_params, env_params)
+        elif session_params['command'] == 'plot':
+            self.plot(session_params, eval_params, env_params)
         else:
             raise Exception('Unknown command')
 
@@ -63,10 +66,18 @@ class Session:
     def evaluate(self, eval_params, env_params):
         self.model.load_state_dict(torch.load(self.model_path))
 
-        total_reward = eval_model(self.dev,
+        total_reward, i = eval_model(self.dev,
                                   eval_params,
                                   self.model,
                                   env_params)
+
+    def plot(self, session_params, eval_params, env_params):
+        self.model.load_state_dict(torch.load(self.model_path))
+        PlotObject = Plot(session_params['numberOfReps'], self.dev,
+                                  eval_params,
+                                  self.model,
+                                  env_params)
+        PlotObject.plotTrainedModel()
 
     def setup_model(self):
         pass
