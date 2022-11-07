@@ -4,3 +4,4 @@ defaults:
   - session: train
   - train: exp1
   - eval: exp1
+  - environment: mspacman

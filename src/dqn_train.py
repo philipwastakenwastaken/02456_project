@@ -7,12 +7,13 @@ import torch.nn.functional as F
 import gym
 from skimage import io
 from model import QNetwork, ReplayMemory
+from env_factory import make_env
 import warnings
 warnings.filterwarnings("ignore")
 
-def train_dq_model(dev, train_params, dqnet, target, model_path):
+def train_dq_model(dev, train_params, dqnet, target, model_path, env_params):
     # Initialize environment
-    env = gym.make('ALE/Asterix-v5',full_action_space=False, obs_type='grayscale')
+    env = make_env(env_params)
 
     # Train parameters
     num_episodes = train_params['num_episodes']

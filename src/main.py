@@ -20,6 +20,7 @@ class Session:
         train_params = config.train
         model_params = config.model
         eval_params = config.eval
+        env_params = config.environment
 
         # Setup seeds for predictability
         torch.manual_seed(session_params["seed"])
@@ -44,19 +45,27 @@ class Session:
 
         if session_params['command'] == 'train':
             print('train!')
-            self.train(train_params)
+            self.train(train_params, env_params)
         elif session_params['command'] == 'evaluate':
-            self.evaluate(eval_params)
+            self.evaluate(eval_params, env_params)
         else:
             raise Exception('Unknown command')
 
-    def train(self, train_params):
-        train_dq_model(self.dev, train_params, self.model, self.target_model, self.model_path)
+    def train(self, train_params, env_params):
+        train_dq_model(self.dev,
+                       train_params,
+                       self.model,
+                       self.target_model,
+                       self.model_path,
+                       env_params)
 
-    def evaluate(self, eval_params):
+    def evaluate(self, eval_params, env_params):
         self.model.load_state_dict(torch.load(self.model_path))
 
-        total_reward = eval_model(self.dev, eval_params, self.model)
+        total_reward = eval_model(self.dev,
+                                  eval_params,
+                                  self.model,
+                                  env_params)
 
     def setup_model(self):
         pass

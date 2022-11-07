@@ -6,13 +6,12 @@ import torch.optim as optim
 import torch.nn.functional as F
 import gym
 from skimage import io
+from env_factory import make_env
 import warnings
 warnings.filterwarnings("ignore")
 
-def eval_model(dev, eval_params, dqnet):
-    env = gym.make('ALE/Asterix-v5',full_action_space=False, obs_type='grayscale',render_mode='human') #
-
-
+def eval_model(dev, eval_params, dqnet, env_params):
+    env = make_env(env_params, render_mode='human')
     s = env.reset()
 
     R = 0
