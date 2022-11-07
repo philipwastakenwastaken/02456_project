@@ -9,8 +9,12 @@ from skimage import io
 from model import QNetwork, get_parameters
 
 
+<<<<<<< HEAD
 # env = gym.make('ALE/Asterix-v5',full_action_space=False, obs_type='grayscale',render_mode='human')
 env = gym.make('ALE/Asterix-v5',full_action_space=False, obs_type='grayscale')
+=======
+env = gym.make('ALE/MsPacman-v5',full_action_space=False, obs_type='grayscale',render_mode='human')
+>>>>>>> 1b950d5ef6d8c4813022d3458b1c290de1f7ee36
 
 n_inputs, n_outputs, learning_rate = get_parameters() 
 qnet = QNetwork(n_inputs, n_outputs, learning_rate)

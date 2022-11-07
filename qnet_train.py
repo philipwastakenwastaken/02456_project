@@ -67,8 +67,13 @@ try:
             if done: break
         
         # bookkeeping
+<<<<<<< HEAD
         epsilon *= num_episodes/(i/(num_episodes/20)+num_episodes) # decrease epsilon
         epsilon -= 0.0005
+=======
+        #epsilon *= num_episodes/(i/(num_episodes/20)+num_episodes) # decrease epsilon
+        #epsilon -= 0.0001
+>>>>>>> 1b950d5ef6d8c4813022d3458b1c290de1f7ee36
         epsilons.append(epsilon); rewards.append(ep_reward); lengths.append(j+1); losses.append(ep_loss)
         rewardsList.append(np.mean(rewards[-val_freq:]))
         if (i+1) % val_freq == 0: print('{:5d} mean training reward: {:5.2f}'.format(i+1, np.mean(rewards[-val_freq:])))
