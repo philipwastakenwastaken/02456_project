@@ -27,7 +27,8 @@ class Session:
         random.seed(session_params['seed'])
         np.random.seed(session_params['seed'])
 
-        self.model_path = os.path.join(get_original_cwd(), 'models/dqnet.pt')
+        path = os.path.join('models', 'dqnet.pt')
+        self.model_path = os.path.join(get_original_cwd(), path)
 
         # Setup GPU
         if torch.cuda.is_available():
