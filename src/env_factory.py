@@ -5,7 +5,7 @@ def make_env(env_params, render_mode=None):
 
     if env_name == 'ALE/Asterix-v5':
         return make_asterix(env_params, render_mode)
-    elif env_name == 'ALE/MsPacMan-v5':
+    elif env_name == 'ALE/MsPacman-v5':
         return make_mspacman(env_params, render_mode)
 
     raise Exception("Unknown environment name")
