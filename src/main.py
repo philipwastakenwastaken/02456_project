@@ -37,7 +37,7 @@ class Session:
         subpath = timeNow + '_dqnet.pt'
         path = os.path.join('models', subpath)
 
-        # path = os.path.join('models', '123Dqnet.pt')
+        #path = os.path.join('models', '2022_11_09_14DD01DD04D002235_dqnet.pt')
         self.model_path = os.path.join(get_original_cwd(), path)
 
         # Setup GPU

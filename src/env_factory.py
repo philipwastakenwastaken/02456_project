@@ -1,4 +1,5 @@
 import gym
+from env_wrapper import CropWrapper, ResizeWrapper, GridifyWrapper
 
 def make_env(env_params, render_mode=None):
     env_name = env_params['env_name']
@@ -15,6 +16,7 @@ def make_asterix(env_params, render_mode):
                    full_action_space=False,
                    obs_type='grayscale',
                    render_mode=render_mode)
+
     return env
 
 def make_mspacman(env_params, render_mode):
@@ -22,4 +24,13 @@ def make_mspacman(env_params, render_mode):
                    full_action_space=False,
                    obs_type='grayscale',
                    render_mode=render_mode)
+
+    wrapper = env_params['wrapper']
+    if wrapper == 'crop':
+        env = CropWrapper(env)
+    elif wrapper == 'resize':
+        env = ResizeWrapper(env)
+    elif wrapper == 'grid':
+        env = GridifyWrapper(env)
+
     return env

@@ -43,7 +43,7 @@ class QNetwork(nn.Module):
         #self.linear = nn.Linear(960, n_hidden, bias=True)
         #torch.nn.init.normal_(self.linear.weight, 0, 1)
 
-        self.flat_dim = 22528
+        self.flat_dim = n_inputs
         self.out = nn.Linear(self.flat_dim, n_outputs, bias=True)
         torch.nn.init.normal_(self.out.weight, 0, 1)
 

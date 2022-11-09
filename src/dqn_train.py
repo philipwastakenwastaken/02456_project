@@ -39,6 +39,8 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, env_params):
     if prefill_memory:
         print('< prefill replay memory >')
         s = env.reset()
+        HEIGHT = s.shape[0]
+        WIDTH = s.shape[1]
         while replay_memory.count() < replay_memory_capacity:
             a = env.action_space.sample()
             s1, r, d, _ = env.step(a)
@@ -61,7 +63,7 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, env_params):
                     a = env.action_space.sample()
                 else:
                     with torch.no_grad():
-                        a = dqnet(torch.from_numpy(s.reshape((1,1,210,160))).float().to(torch.device(dev))).argmax().item()
+                        a = dqnet(torch.from_numpy(s.reshape((1,1,HEIGHT,WIDTH))).float().to(torch.device(dev))).argmax().item()
 
                 # perform action
                 s1, r, d, _ = env.step(a)
@@ -80,11 +82,11 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, env_params):
 
                     # do forward pass of batch
                     dqnet.optimizer.zero_grad()
-                    Q = dqnet(torch.from_numpy(ss.reshape((batch_size,1,210,160))).float().to(torch.device(dev)))
+                    Q = dqnet(torch.from_numpy(ss.reshape((batch_size,1,HEIGHT,WIDTH))).float().to(torch.device(dev)))
 
                     # use target network to compute target Q-values
                     with torch.no_grad():
-                        Q1 = target(torch.from_numpy(ss1.reshape((batch_size,1,210,160))).float().to(torch.device(dev)))
+                        Q1 = target(torch.from_numpy(ss1.reshape((batch_size,1,HEIGHT,WIDTH))).float().to(torch.device(dev)))
 
                     # compute target for each sampled experience
                     q_targets = Q.clone()
