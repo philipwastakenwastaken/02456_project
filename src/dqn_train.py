@@ -113,6 +113,7 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, env_params):
             if (i+1) % val_freq == 0: print('%5d mean training reward: %5.2f' % (i+1, np.mean(rewards[-val_freq:])))
 
         print('done')
+        return rewards, lengths, losses, epsilons
 
     except KeyboardInterrupt:
         print('interrupt')

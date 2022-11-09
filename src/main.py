@@ -56,12 +56,15 @@ class Session:
             raise Exception('Unknown command')
 
     def train(self, train_params, env_params):
-        train_dq_model(self.dev,
+        rewards, lengths, losses, epsilons = train_dq_model(self.dev,
                        train_params,
                        self.model,
                        self.target_model,
                        self.model_path,
                        env_params)
+
+        PlotObject = Plot(trainingResults = (rewards, lengths, losses, epsilons))
+        PlotObject.plotTrainingProgress()
 
     def evaluate(self, eval_params, env_params):
         self.model.load_state_dict(torch.load(self.model_path))
