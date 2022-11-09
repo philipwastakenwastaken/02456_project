@@ -20,7 +20,7 @@ class Plot():
 
         plt.plot(self.rewards)
         plt.xlabel('Round')
-        plt.ylabel('Mean training reward')
+        plt.ylabel('Mean Evaluation reward')
         plt.show()
 
         print("Mean reward is {}".format(np.mean(self.rewards)))
