@@ -7,6 +7,7 @@ from hydra.utils import get_original_cwd
 from omegaconf import DictConfig
 
 import os
+import datetime
 
 from dqn_train import train_dq_model
 from eval import eval_model
@@ -28,7 +29,15 @@ class Session:
         random.seed(session_params['seed'])
         np.random.seed(session_params['seed'])
 
-        path = os.path.join('models', 'dqnet.pt')
+        timeNow = str(datetime.datetime.now()).replace(" ", "_")
+        timeNow = timeNow.replace(".", "D")
+        timeNow = timeNow.replace("-", "_")
+        timeNow = timeNow.replace(":", "DD")
+
+        subpath = timeNow + '_dqnet.pt'
+        path = os.path.join('models', subpath)
+
+        # path = os.path.join('models', '123Dqnet.pt')
         self.model_path = os.path.join(get_original_cwd(), path)
 
         # Setup GPU

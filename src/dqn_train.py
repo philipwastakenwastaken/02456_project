@@ -5,6 +5,8 @@ import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 import gym
+import datetime
+import os
 from skimage import io
 from model import QNetwork, ReplayMemory
 from env_factory import make_env
@@ -113,10 +115,12 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, env_params):
             if (i+1) % val_freq == 0: print('%5d mean training reward: %5.2f' % (i+1, np.mean(rewards[-val_freq:])))
 
         print('done')
+
+        # Save network weights
+        print(model_path)
+        torch.save(dqnet.state_dict(), model_path, _use_new_zipfile_serialization=False)
+
         return rewards, lengths, losses, epsilons
 
     except KeyboardInterrupt:
         print('interrupt')
-
-    # Save network weights
-    torch.save(dqnet.state_dict(), model_path, _use_new_zipfile_serialization=False)
