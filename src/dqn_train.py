@@ -8,6 +8,7 @@ import gym
 from skimage import io
 from model import QNetwork, ReplayMemory
 from env_factory import make_env
+import wandb
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -48,6 +49,7 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, env_params):
         print('< start training >')
         epsilon = epsilon_start
         rewards, lengths, losses, epsilons = [], [], [], []
+        frame_count = 0
         for i in range(num_episodes):
 
             # initialize new episode
@@ -63,6 +65,7 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, env_params):
 
                 # perform action
                 s1, r, d, _ = env.step(a)
+                frame_count += 1
 
                 # store experience in replay memory
                 replay_memory.add(s, a, r, s1, d)
@@ -110,7 +113,11 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, env_params):
             #epsilon *= num_episodes/(i/(num_episodes/20)+num_episodes) # decrease epsilon
             epsilon -= 0.001
             epsilons.append(epsilon); rewards.append(ep_reward); lengths.append(j+1); losses.append(ep_loss)
-            if (i+1) % val_freq == 0: print('%5d mean training reward: %5.2f' % (i+1, np.mean(rewards[-val_freq:])))
+            mean_train_reward = np.mean(rewards[-val_freq:])
+            if (i+1) % val_freq == 0:
+                print('%5d mean training reward: %5.2f' % (i+1, mean_train_reward))
+            wandb.log({'mean_train_reward': mean_train_reward})
+            wandb.log({'frame_count': frame_count})
 
         print('done')
 

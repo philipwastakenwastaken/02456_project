@@ -1,2 +1,4 @@
 seed: 1234
 command: evaluate
+
+use_wandb: False
