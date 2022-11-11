@@ -6,3 +6,5 @@ env/
 
 # Hydra
 outputs/
+
+wandb_api_key.txt
