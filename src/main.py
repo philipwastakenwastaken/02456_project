@@ -67,13 +67,13 @@ class Session:
                                                             self.model,
                                                             self.target_model,
                                                             self.model_path,
-                                                            self.env_params)
+                                                            self.env_params,
+                                                            self.use_wandb)
 
         PlotObject = Plot(trainingResults = (rewards, lengths, losses, epsilons))
         PlotObject.plotTrainingProgress()
 
     def plot(self):
-        self.model.load_state_dict(torch.load(self.model_path))
         PlotObject = Plot(self.session_params['numberOfReps'],
                           self.dev,
                           self.eval_params,
@@ -82,8 +82,6 @@ class Session:
         PlotObject.plotTrainedModel()
 
     def evaluate(self):
-        self.model.load_state_dict(torch.load(self.model_path))
-
         total_reward, i = eval_model(self.dev,
                                      self.eval_params,
                                      self.model,

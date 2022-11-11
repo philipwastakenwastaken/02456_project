@@ -14,7 +14,7 @@ import wandb
 import warnings
 warnings.filterwarnings("ignore")
 
-def train_dq_model(dev, train_params, dqnet, target, model_path, env_params):
+def train_dq_model(dev, train_params, dqnet, target, model_path, env_params, use_wandb):
     # Initialize environment
     env = make_env(env_params)
 
@@ -120,8 +120,11 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, env_params):
             mean_train_reward = np.mean(rewards[-val_freq:])
             if (i+1) % val_freq == 0:
                 print('%5d mean training reward: %5.2f' % (i+1, mean_train_reward))
-            wandb.log({'mean_train_reward': mean_train_reward})
-            wandb.log({'frame_count': frame_count})
+
+            # This is pretty ugly... but making a fully fledged logger is pretty time consuming
+            if use_wandb:
+                wandb.log({'mean_train_reward': mean_train_reward})
+                wandb.log({'frame_count': frame_count})
 
         print('done')
 
