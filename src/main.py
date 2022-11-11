@@ -10,6 +10,7 @@ import wandb
 
 import os
 import datetime
+import glob
 
 from dqn_train import train_dq_model
 from eval import eval_model
@@ -31,16 +32,6 @@ class Session:
         random.seed(self.session_params['seed'])
         np.random.seed(self.session_params['seed'])
 
-        timeNow = str(datetime.datetime.now()).replace(" ", "_")
-        timeNow = timeNow.replace(".", "D")
-        timeNow = timeNow.replace("-", "_")
-        timeNow = timeNow.replace(":", "DD")
-
-        subpath = timeNow + '_dqnet.pt'
-        path = os.path.join('models', subpath)
-
-        #path = os.path.join('models', '2022_11_09_14DD01DD04D002235_dqnet.pt')
-        self.model_path = os.path.join(get_original_cwd(), path)
 
         # Setup GPU
         if torch.cuda.is_available():
@@ -57,6 +48,8 @@ class Session:
         self.target_model = QNetwork(n_inputs=self.model_params['n_inputs'],
                                      n_outputs=self.model_params['n_outputs'],
                                      learning_rate=self.model_params['learning_rate'])
+
+        self.setup_model()
 
         if self.session_params['command'] == 'train':
             self.train()
@@ -97,7 +90,51 @@ class Session:
                                      self.env_params)
 
     def setup_model(self):
-        pass
+        config_model_path = self.model_params['model_path']
+        config_model_path_set = config_model_path != ''
+        is_train = self.session_params['command'] == 'train'
+
+        # Case 1: no model path set and we want to train. Training a fresh model with a newly generated name.
+        if not config_model_path_set and is_train:
+            timeNow = str(datetime.datetime.now()).replace(" ", "_")
+            timeNow = timeNow.replace(".", "D")
+            timeNow = timeNow.replace("-", "_")
+            timeNow = timeNow.replace(":", "DD")
+
+            subpath = timeNow + '_dqnet.pt'
+            self.model_path = os.path.join(get_original_cwd(), 'models', subpath)
+
+        # Case 2: model path is set and we want to train. Load weights from model path and continue training
+        #         this model.
+        if config_model_path_set and is_train:
+            self.model_path = os.path.join(get_original_cwd(), 'models', config_model_path)
+            self.model.load_state_dict(torch.load(self.model_path))
+
+        # Case 3: model path is set and we want to run in plot or evaluate mode.
+        #         Load model from path and continue.
+        if config_model_path_set and not is_train:
+            self.model_path = os.path.join(get_original_cwd(), 'models', config_model_path)
+            self.model.load_state_dict(torch.load(self.model_path))
+
+        # Case 4: model path is not set and we want to run in plot or evaluate mode.
+        #         As a fallback, simply load the name of the most recently created model.
+        #         WARNING: this is based on file modification date, NOT on the timestamp in the name.
+        #         If no models are found in the models/ folder, an exception is raised.
+        if not config_model_path_set and not is_train:
+            path = os.path.join(get_original_cwd(), 'models', '*_dqnet.pt')
+            names = [x for x in glob.glob(path)]
+            names.sort(key=os.path.getmtime, reverse=True)
+            print(names)
+
+            if len(names) == 0:
+                raise Exception('No model path set with no fallback model found')
+
+            self.model_path = names[0]
+            self.model.load_state_dict(torch.load(self.model_path))
+
+
+
+
 
     def setup_wandb(self):
         self.use_wandb = self.session_params['use_wandb']
@@ -112,7 +149,6 @@ class Session:
 
         if self.session_params['wandb_api_key'] != None:
             key = self.session_params['wandb_api_key']
-            self.use_wandb = True
 
         print("wandb usage is:", self.use_wandb)
         self.logger = None
