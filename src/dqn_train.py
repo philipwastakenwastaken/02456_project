@@ -131,6 +131,7 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, env_params, use
         # Save network weights
         print(model_path)
         torch.save(dqnet.state_dict(), model_path, _use_new_zipfile_serialization=False)
+        print('Saved model')
 
         return rewards, lengths, losses, epsilons
 

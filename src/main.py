@@ -70,8 +70,10 @@ class Session:
                                                             self.env_params,
                                                             self.use_wandb)
 
-        PlotObject = Plot(trainingResults = (rewards, lengths, losses, epsilons))
-        PlotObject.plotTrainingProgress()
+        # On HPC cluster we don't want to render plots.
+        if self.session_params['show_plots']:
+            PlotObject = Plot(trainingResults = (rewards, lengths, losses, epsilons))
+            PlotObject.plotTrainingProgress()
 
     def plot(self):
         PlotObject = Plot(self.session_params['numberOfReps'],
@@ -136,14 +138,6 @@ class Session:
 
     def setup_wandb(self):
         self.use_wandb = self.session_params['use_wandb']
-        try:
-            key_path = os.path.join(get_original_cwd, 'wandb_api_key.txt')
-            with open(key_path, encoding='utf-8') as f:
-                key = f.read()
-                if key == '':
-                    raise Exception()
-        except Exception:
-            self.use_wandb = False
 
         if self.session_params['wandb_api_key'] != None:
             key = self.session_params['wandb_api_key']
