@@ -10,3 +10,4 @@ outputs/
 wandb_api_key.txt
 
 .DS_Store
+.vscode/

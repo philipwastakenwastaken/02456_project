@@ -35,8 +35,6 @@ class Session:
 
         self.setup_device()
         self.setup_wandb()
-
-
         self.setup_model()
 
         if self.session_params['command'] == 'train':
