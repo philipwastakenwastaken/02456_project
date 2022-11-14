@@ -36,13 +36,6 @@ class Session:
         self.setup_device()
         self.setup_wandb()
 
-        self.model = QNetwork(n_inputs=self.model_params['n_inputs'],
-                              n_outputs=self.model_params['n_outputs'],
-                              learning_rate=self.model_params['learning_rate'])
-
-        self.target_model = QNetwork(n_inputs=self.model_params['n_inputs'],
-                                     n_outputs=self.model_params['n_outputs'],
-                                     learning_rate=self.model_params['learning_rate'])
 
         self.setup_model()
 
@@ -114,6 +107,16 @@ class Session:
 
 
     def setup_model(self):
+        self.model = QNetwork(n_inputs=self.model_params['n_inputs'],
+                              n_outputs=self.model_params['n_outputs'],
+                              learning_rate=self.model_params['learning_rate'])
+
+        self.target_model = QNetwork(n_inputs=self.model_params['n_inputs'],
+                                     n_outputs=self.model_params['n_outputs'],
+                                     learning_rate=self.model_params['learning_rate'])
+
+
+
         config_model_path = self.model_params['model_path']
         config_model_path_set = config_model_path != ''
         is_train = self.session_params['command'] == 'train'
