@@ -1,2 +1,2 @@
 env_name: ALE/MsPacman-v5
-wrapper: resize
+wrapper: crop
