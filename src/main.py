@@ -172,9 +172,12 @@ class Session:
             }
 
             # Set a run name
-            run_name = self.env_params['env_name'] + '-' + self.model_params['optim']
+            run_name = self.model_params['wrapper']
             run_name += '-' + wandb.run.name.split('-')[-1]
+            run_name += '-' + 'batch=' + str(self.train_params['batch_size'])
             run_name += '-' + 'lr=' + str(self.model_params['learning_rate'])
+            run_name += '-' + 'eps=' + str(self.train_params['num_episodes'])
+            run_name += '-' + 'gamma=' + str(self.train_params['gamma'])
             wandb.run.name = run_name
             wandb.run.save()
 

@@ -111,8 +111,7 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, env)
                 if d: break
 
             # bookkeeping
-            #epsilon *= num_episodes/(i/(num_episodes/20)+num_episodes) # decrease epsilon
-            epsilon -= 0.001
+            epsilon *= num_episodes/(i/(num_episodes/20)+num_episodes) # decrease epsilon
             epsilons.append(epsilon); rewards.append(ep_reward); lengths.append(j+1); losses.append(ep_loss)
             mean_train_reward = np.mean(rewards[-val_freq:])
             if (i+1) % val_freq == 0:
@@ -120,8 +119,7 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, env)
 
             # This is pretty ugly... but making a fully fledged logger is pretty time consuming
             if use_wandb:
-                wandb.log({'mean_train_reward': mean_train_reward})
-                wandb.log({'frame_count': frame_count})
+                wandb.log({'mean_train_reward': mean_train_reward, 'frame_count': frame_count})
 
         print('done')
 
