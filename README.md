@@ -13,6 +13,16 @@ Change environment
 
 ```python src/main.py session=train environment=asterix```
 
+## Changing wrapper (and model used)
+```python src/main.py session=train model=crop_model```
+
+```python src/main.py session=train model=resize_model```
+
+```python src/main.py session=train model=stretch_mode```
+
+**NOTE** that this changes the input size of the model. This means that models trained with one setting are not
+compatible with each other.
+
 ## Weights and Biases
 Currently, API key from s174274 is used (set in config file).
 You can see runs here ```https://wandb.ai/philipwastaken/02456_project```.
