@@ -185,7 +185,8 @@ class Session:
                 "tau": self.train_params['tau'],
                 "replay_memory_capacity": self.train_params['replay_memory_capacity'],
                 "prefill_memory": self.train_params['prefill_memory'],
-                "episode_limit": self.train_params['episode_limit']
+                "episode_limit": self.train_params['episode_limit'],
+                "weight_decay": self.model_params['weight_decay']
             }
 
             # Set a run name
