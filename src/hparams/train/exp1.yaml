@@ -1,5 +1,5 @@
 num_episodes: 2
-episode_limit: 300
+episode_limit: 10000
 gamma: 0.9
 val_freq: 1
 epsilon_start: 1.0

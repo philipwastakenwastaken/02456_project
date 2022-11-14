@@ -20,7 +20,7 @@ class NopWrapper(gym.Wrapper):
         if info['lives'] == 2:
             done = True
             r = -1000
-        return s, r, done, info
+        return s, r-1, done, info
 
     def reset(self):
         s = self.env.reset()
@@ -41,7 +41,7 @@ class CropWrapper(gym.Wrapper):
             done = True
             r = -1000
         s = s[6:170, 5:-5]
-        return s, r, done, info
+        return s, r-1, done, info
 
     def reset(self):
         s = self.env.reset()
@@ -65,7 +65,7 @@ class StretchWrapper(gym.Wrapper):
         s = resize(s, RESIZE_DIM, anti_aliasing=False)
         s[s > 0.3] = 1
         s[s <= 0.3] = 0
-        return s, r, done, info
+        return s, r-1, done, info
 
     def reset(self):
         s = self.env.reset()
@@ -92,7 +92,7 @@ class ResizeWrapper(gym.Wrapper):
         s = resize(s, RESIZE_DIM, anti_aliasing=False)
         s[s > 0.3] = 1
         s[s <= 0.3] = 0
-        return s, r, done, info
+        return s, r-1, done, info
 
     def reset(self):
         s = self.env.reset()
