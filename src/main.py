@@ -18,6 +18,7 @@ from model import QNetwork
 from plotting import Plot
 from env_factory import make_env
 
+
 class Session:
 
     def __init__(self, config):
@@ -46,7 +47,6 @@ class Session:
         else:
             raise Exception('Unknown command')
 
-
     def train(self):
         env = make_env(self.env_params, self.model_params)
         rewards, lengths, losses, epsilons = train_dq_model(self.dev,
@@ -59,7 +59,8 @@ class Session:
 
         # On HPC cluster we don't want to render plots.
         if self.session_params['show_plots']:
-            PlotObject = Plot(trainingResults = (rewards, lengths, losses, epsilons))
+            PlotObject = Plot(trainingResults=(
+                rewards, lengths, losses, epsilons))
             PlotObject.plotTrainingProgress()
 
     def plot(self):
@@ -73,7 +74,8 @@ class Session:
     def evaluate(self):
         human_mode = True
         if human_mode:
-            env = make_env(self.env_params, self.model_params, render_mode='human')
+            env = make_env(self.env_params, self.model_params,
+                           render_mode='human')
         else:
             env = make_env(self.env_params, self.model_params)
 
@@ -103,7 +105,6 @@ class Session:
 
         print(f'< device: {self.dev} >')
 
-
     def setup_model(self):
         self.model = QNetwork(n_inputs=self.model_params['n_inputs'],
                               n_outputs=self.model_params['n_outputs'],
@@ -112,8 +113,6 @@ class Session:
         self.target_model = QNetwork(n_inputs=self.model_params['n_inputs'],
                                      n_outputs=self.model_params['n_outputs'],
                                      learning_rate=self.model_params['learning_rate'])
-
-
 
         config_model_path = self.model_params['model_path']
         config_model_path_set = config_model_path != ''
@@ -126,19 +125,23 @@ class Session:
             timeNow = timeNow.replace("-", "_")
             timeNow = timeNow.replace(":", "DD")
 
-            subpath = self.model_params['wrapper'] + '_' + timeNow + '_dqnet.pt'
-            self.model_path = os.path.join(get_original_cwd(), 'models', subpath)
+            subpath = self.model_params['wrapper'] + \
+                '_' + timeNow + '_dqnet.pt'
+            self.model_path = os.path.join(
+                get_original_cwd(), 'models', subpath)
 
         # Case 2: model path is set and we want to train. Load weights from model path and continue training
         #         this model.
         if config_model_path_set and is_train:
-            self.model_path = os.path.join(get_original_cwd(), 'models', config_model_path)
+            self.model_path = os.path.join(
+                get_original_cwd(), 'models', config_model_path)
             self.model.load_state_dict(torch.load(self.model_path))
 
         # Case 3: model path is set and we want to run in plot or evaluate mode.
         #         Load model from path and continue.
         if config_model_path_set and not is_train:
-            self.model_path = os.path.join(get_original_cwd(), 'models', config_model_path)
+            self.model_path = os.path.join(
+                get_original_cwd(), 'models', config_model_path)
             self.model.load_state_dict(torch.load(self.model_path))
 
         # Case 4: model path is not set and we want to run in plot or evaluate mode.
@@ -152,11 +155,11 @@ class Session:
             print(names)
 
             if len(names) == 0:
-                raise Exception('No model path set with no fallback model found')
+                raise Exception(
+                    'No model path set with no fallback model found')
 
             self.model_path = names[0]
             self.model.load_state_dict(torch.load(self.model_path))
-
 
     def setup_wandb(self):
         self.use_wandb = self.session_params['use_wandb']
@@ -172,15 +175,15 @@ class Session:
 
             wandb.init(project="02456_project", entity="philipwastaken")
             wandb.config.update = {
-              "learning_rate": self.model_params.learning_rate,
-              "num_episodes": self.train_params.num_episodes,
-              "batch_size": self.train_params.batch_size,
-              "gamma": self.train_params['gamma'],
-              "val_freq": self.train_params['val_freq'],
-              "tau": self.train_params['tau'],
-              "replay_memory_capacity": self.train_params['replay_memory_capacity'],
-              "prefill_memory": self.train_params['prefill_memory'],
-              "episode_limit": self.train_params['episode_limit']
+                "learning_rate": self.model_params.learning_rate,
+                "num_episodes": self.train_params.num_episodes,
+                "batch_size": self.train_params.batch_size,
+                "gamma": self.train_params['gamma'],
+                "val_freq": self.train_params['val_freq'],
+                "tau": self.train_params['tau'],
+                "replay_memory_capacity": self.train_params['replay_memory_capacity'],
+                "prefill_memory": self.train_params['prefill_memory'],
+                "episode_limit": self.train_params['episode_limit']
             }
 
             # Set a run name

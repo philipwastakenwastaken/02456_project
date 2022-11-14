@@ -2,6 +2,7 @@ import torch
 import warnings
 warnings.filterwarnings("ignore")
 
+
 def eval_model(dev, eval_params, dqnet, env):
     s = env.reset()
     HEIGHT = s.shape[0]
@@ -9,13 +10,14 @@ def eval_model(dev, eval_params, dqnet, env):
 
     R = 0
     for i in range(2000):
-        a = dqnet(torch.from_numpy(s.reshape((1,1,HEIGHT,WIDTH))).float()).argmax().item()
+        a = dqnet(torch.from_numpy(
+            s.reshape((1, 1, HEIGHT, WIDTH))).float()).argmax().item()
         s, r, done, _ = env.step(a)
 
         R += r
 
         if done:
-            print("Died at frame:",i)
+            print("Died at frame:", i)
             return R, i
 
     print("Total reward", R)

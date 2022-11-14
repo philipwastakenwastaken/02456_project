@@ -12,7 +12,6 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-
 class QNetwork(nn.Module):
     """Q-network"""
 
@@ -21,24 +20,24 @@ class QNetwork(nn.Module):
         n_hidden = 2500
 
         self.conv1 = nn.Conv2d(in_channels=1,
-                             out_channels=32,
-                             kernel_size=8,
-                             stride=4,
-                             padding=0)
+                               out_channels=32,
+                               kernel_size=8,
+                               stride=4,
+                               padding=0)
         #self.pool1 = nn.MaxPool2d(3,stride=2)
 
         self.conv2 = nn.Conv2d(in_channels=32,
-                             out_channels=64,
-                             kernel_size=4,
-                             stride=2,
-                             padding=0)
+                               out_channels=64,
+                               kernel_size=4,
+                               stride=2,
+                               padding=0)
         #self.pool2 = nn.MaxPool2d(3,stride=2)
 
         self.conv3 = nn.Conv2d(in_channels=64,
-                             out_channels=64,
-                             kernel_size=3,
-                             stride=1,
-                             padding=0)
+                               out_channels=64,
+                               kernel_size=3,
+                               stride=1,
+                               padding=0)
 
         #self.linear = nn.Linear(960, n_hidden, bias=True)
         #torch.nn.init.normal_(self.linear.weight, 0, 1)
@@ -48,7 +47,6 @@ class QNetwork(nn.Module):
         torch.nn.init.normal_(self.out.weight, 0, 1)
 
         self.optimizer = optim.Adam(self.parameters(), lr=learning_rate)
-
 
     def forward(self, x):
         x = x / 255.0
@@ -64,23 +62,19 @@ class QNetwork(nn.Module):
         x = self.conv3(x)
         x = F.relu(x)
 
-
         b_size = x.shape[0]
-        x = x.reshape((b_size,self.flat_dim))
+        x = x.reshape((b_size, self.flat_dim))
         x = self.out(x)
         return x
 
-
     def loss(self, q_outputs, q_targets):
         return torch.sum(torch.pow(q_targets - q_outputs, 2))
-
 
     def update_params(self, new_params, tau):
         params = self.state_dict()
         for k in params.keys():
             params[k] = (1-tau) * params[k] + tau * new_params[k]
         self.load_state_dict(params)
-
 
 
 class ReplayMemory(object):
