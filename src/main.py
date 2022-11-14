@@ -16,6 +16,7 @@ from dqn_train import train_dq_model
 from eval import eval_model
 from model import QNetwork
 from plotting import Plot
+from env_factory import make_env
 
 class Session:
 
@@ -62,13 +63,14 @@ class Session:
 
 
     def train(self):
+        env = make_env(self.env_params, self.model_params)
         rewards, lengths, losses, epsilons = train_dq_model(self.dev,
                                                             self.train_params,
                                                             self.model,
                                                             self.target_model,
                                                             self.model_path,
-                                                            self.env_params,
-                                                            self.use_wandb)
+                                                            self.use_wandb,
+                                                            env)
 
         # On HPC cluster we don't want to render plots.
         if self.session_params['show_plots']:
@@ -84,10 +86,16 @@ class Session:
         PlotObject.plotTrainedModel()
 
     def evaluate(self):
+        human_mode = True
+        if human_mode:
+            env = make_env(self.env_params, self.model_params, render_mode='human')
+        else:
+            env = make_env(self.env_params, self.model_params)
+
         total_reward, i = eval_model(self.dev,
                                      self.eval_params,
                                      self.model,
-                                     self.env_params)
+                                     env)
 
     def setup_model(self):
         config_model_path = self.model_params['model_path']

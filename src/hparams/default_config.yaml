@@ -1,6 +1,6 @@
 # @package _global_
 defaults:
-  - model: exp1
+  - model: crop_model
   - session: train
   - train: exp1
   - eval: exp1

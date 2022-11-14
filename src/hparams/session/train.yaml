@@ -3,5 +3,5 @@ command: train
 
 show_plots: False
 
-use_wandb: True
+use_wandb: False
 wandb_api_key: d112862dfe2a0a9e1ea91edb8f8b3c9babef8053

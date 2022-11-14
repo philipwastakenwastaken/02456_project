@@ -1,17 +1,8 @@
-import matplotlib.pyplot as plt
-import numpy as np
 import torch
-import torch.nn as nn
-import torch.optim as optim
-import torch.nn.functional as F
-import gym
-from skimage import io
-from env_factory import make_env
 import warnings
 warnings.filterwarnings("ignore")
 
-def eval_model(dev, eval_params, dqnet, env_params, humanMode=True):
-    env = make_env(env_params, render_mode='human') if humanMode else make_env(env_params)
+def eval_model(dev, eval_params, dqnet, env):
     s = env.reset()
     HEIGHT = s.shape[0]
     WIDTH = s.shape[1]

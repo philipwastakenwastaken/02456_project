@@ -14,10 +14,7 @@ import wandb
 import warnings
 warnings.filterwarnings("ignore")
 
-def train_dq_model(dev, train_params, dqnet, target, model_path, env_params, use_wandb):
-    # Initialize environment
-    env = make_env(env_params)
-
+def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, env):
     # Train parameters
     num_episodes = train_params['num_episodes']
     episode_limit = train_params['episode_limit']
