@@ -33,13 +33,7 @@ class Session:
         random.seed(self.session_params['seed'])
         np.random.seed(self.session_params['seed'])
 
-
-        # Setup GPU
-        if torch.cuda.is_available():
-          self.dev = "cuda:0"
-        else:
-          self.dev = "cpu"
-
+        self.setup_device()
         self.setup_wandb()
 
         self.model = QNetwork(n_inputs=self.model_params['n_inputs'],
@@ -97,6 +91,28 @@ class Session:
                                      self.model,
                                      env)
 
+    def setup_device(self):
+        dev_option = self.session_params['device']
+
+        # Default to GPU if available
+        if dev_option == 'auto':
+            if torch.cuda.is_available():
+                self.dev = "cuda:0"
+            else:
+                self.dev = "cpu"
+        elif dev_option == 'cpu':
+            self.dev = "cpu"
+        elif dev_option == 'gpu':
+            if torch.cuda.is_available():
+                self.dev = "cuda:0"
+            else:
+                raise Exception("Cuda is not available, GPU cannot be used")
+        else:
+            raise Exception("Unknown device argument")
+
+        print(f'< device: {self.dev} >')
+
+
     def setup_model(self):
         config_model_path = self.model_params['model_path']
         config_model_path_set = config_model_path != ''
@@ -147,13 +163,11 @@ class Session:
         if self.session_params['wandb_api_key'] != None:
             key = self.session_params['wandb_api_key']
 
-        print("wandb usage is:", self.use_wandb)
-        self.logger = None
+        print(f'< wandb: {self.use_wandb}')
 
         if self.use_wandb and self.session_params['command'] == 'train':
             print("Using key: ", key)
             wandb.login(key=key)
-            #self.logger = wandb.WandbLogger()
 
             wandb.init(project="02456_project", entity="philipwastaken")
             wandb.config.update = {

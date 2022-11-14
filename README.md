@@ -37,3 +37,6 @@ hyperparameters).
 
 It is important that you set this parameter if you wish to run the model. Otherwise it simply chooses the most
 recently modified model for convinience.
+
+## Changing `device`
+Acceptable device settings are `auto`, `cpu` or `gpu`. `auto` will prefer `gpu` if possible and fallback to `cpu`. If `gpu` is chosen but not available, the program exits.

@@ -1,6 +1,7 @@
 seed: 42
 command: plot
 numberOfReps: 50
+device: auto
 
 
 use_wandb: False
