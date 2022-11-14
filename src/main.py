@@ -109,7 +109,7 @@ class Session:
             timeNow = timeNow.replace("-", "_")
             timeNow = timeNow.replace(":", "DD")
 
-            subpath = timeNow + '_dqnet.pt'
+            subpath = self.model_params['wrapper'] + '_' + timeNow + '_dqnet.pt'
             self.model_path = os.path.join(get_original_cwd(), 'models', subpath)
 
         # Case 2: model path is set and we want to train. Load weights from model path and continue training
@@ -139,9 +139,6 @@ class Session:
 
             self.model_path = names[0]
             self.model.load_state_dict(torch.load(self.model_path))
-
-
-
 
 
     def setup_wandb(self):
