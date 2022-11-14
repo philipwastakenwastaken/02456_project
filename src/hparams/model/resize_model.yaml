@@ -1,5 +1,5 @@
-n_inputs: 1600
-n_outputs: 9
+n_inputs: 16320
+n_outputs: 5
 learning_rate: 0.00001
 optim: Adam
 model_path: ''

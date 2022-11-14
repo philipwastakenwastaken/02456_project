@@ -2,7 +2,8 @@ import gym
 from skimage.transform import resize
 import numpy as np
 import os
-
+from skimage import io
+from matplotlib import pyplot as plt
 
 class CropWrapper(gym.Wrapper):
     def __init__(self, env):
@@ -12,6 +13,9 @@ class CropWrapper(gym.Wrapper):
         
     def step(self, action):
         s, r, done, info = self.env.step(action)
+        if info['lives'] == 2:
+            done = True
+            r = -1000
         s = s[6:170,5:-5]
         return s, r, done, info
 
@@ -31,6 +35,9 @@ class StretchWrapper(gym.Wrapper):
         
     def step(self, action):
         s, r, done, info = self.env.step(action)
+        if info['lives'] == 2:
+            done = True
+            r = -1000
         s = resize(s, (72,72), anti_aliasing=False)
         s[s>0.3]=1
         s[s<=0.3]=0
@@ -54,6 +61,9 @@ class ResizeWrapper(gym.Wrapper):
         
     def step(self, action):
         s, r, done, info = self.env.step(action)
+        if info['lives'] == 2:
+            done = True
+            r = -1000
         s = s[6:170,5:-5]
         s = resize(s, (72,72), anti_aliasing=False)
         s[s>0.3]=1
