@@ -15,7 +15,7 @@ class CropWrapper(gym.Wrapper):
         s, r, done, info = self.env.step(action)
         if info['lives'] == 2:
             done = True
-            r = -100
+            r = -1000
         s = s[6:170,5:-5]
         return s, r, done, info
 
@@ -37,7 +37,7 @@ class StretchWrapper(gym.Wrapper):
         s, r, done, info = self.env.step(action)
         if info['lives'] == 2:
             done = True
-            r = -100
+            r = -1000
         s = resize(s, (72,72), anti_aliasing=False)
         s[s>0.3]=1
         s[s<=0.3]=0
@@ -63,7 +63,7 @@ class ResizeWrapper(gym.Wrapper):
         s, r, done, info = self.env.step(action)
         if info['lives'] == 2:
             done = True
-            r = -100
+            r = -1000
         s = s[6:170,5:-5]
         s = resize(s, (72,72), anti_aliasing=False)
         s[s>0.3]=1
