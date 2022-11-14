@@ -40,7 +40,7 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, env)
         s = env.reset()
         HEIGHT = s.shape[0]
         WIDTH = s.shape[1]
-        while replay_memory.count() < replay_memory_capacity:
+        while replay_memory.count() < 0.05 * replay_memory_capacity: # prefill 5%
             a = env.action_space.sample()
             s1, r, d, _ = env.step(a)
             replay_memory.add(s, a, r, s1, d)
@@ -118,7 +118,8 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, env)
                     break
 
             # bookkeeping
-            epsilon *= num_episodes / (i / (num_episodes / 20) + num_episodes)  # decrease epsilon
+            # epsilon *= num_episodes / (i / (num_episodes / 20) + num_episodes)  # decrease epsilon
+            epsilon -= 1.0 / 1000000.0
             epsilon = max(epsilon, 0.1) # Lower limit
             epsilons.append(epsilon)
             rewards.append(ep_reward)
