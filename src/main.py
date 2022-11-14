@@ -108,11 +108,13 @@ class Session:
     def setup_model(self):
         self.model = QNetwork(n_inputs=self.model_params['n_inputs'],
                               n_outputs=self.model_params['n_outputs'],
-                              learning_rate=self.model_params['learning_rate'])
+                              learning_rate=self.model_params['learning_rate'],
+                              weight_decay=self.model_params['weight_decay'])
 
         self.target_model = QNetwork(n_inputs=self.model_params['n_inputs'],
                                      n_outputs=self.model_params['n_outputs'],
-                                     learning_rate=self.model_params['learning_rate'])
+                                     learning_rate=self.model_params['learning_rate'],
+                                     weight_decay=self.model_params['weight_decay'])
 
         config_model_path = self.model_params['model_path']
         config_model_path_set = config_model_path != ''
