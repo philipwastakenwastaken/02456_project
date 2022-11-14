@@ -5,12 +5,14 @@ import os
 from skimage import io
 from matplotlib import pyplot as plt
 
+ACTION_SPACE_SIZE = 5
+RESIZE_DIM = (72, 72)
 
 class NopWrapper(gym.Wrapper):
     def __init__(self, env):
         super().__init__(env)
         self.env = env
-        self.action_space = gym.spaces.Discrete(5)
+        self.action_space = gym.spaces.Discrete(ACTION_SPACE_SIZE)
 
     def step(self, action):
         s, r, done, info = self.env.step(action)
@@ -29,7 +31,7 @@ class CropWrapper(gym.Wrapper):
     def __init__(self, env):
         super().__init__(env)
         self.env = env
-        self.action_space = gym.spaces.Discrete(5)
+        self.action_space = gym.spaces.Discrete(ACTION_SPACE_SIZE)
 
     def step(self, action):
         s, r, done, info = self.env.step(action)
@@ -51,14 +53,14 @@ class StretchWrapper(gym.Wrapper):
     def __init__(self, env):
         super().__init__(env)
         self.env = env
-        self.action_space = gym.spaces.Discrete(5)
+        self.action_space = gym.spaces.Discrete(ACTION_SPACE_SIZE)
 
     def step(self, action):
         s, r, done, info = self.env.step(action)
         if info['lives'] == 2:
             done = True
             r = -1000
-        s = resize(s, (72,72), anti_aliasing=False)
+        s = resize(s, RESIZE_DIM, anti_aliasing=False)
         s[s>0.3]=1
         s[s<=0.3]=0
         return s, r, done, info
@@ -67,7 +69,7 @@ class StretchWrapper(gym.Wrapper):
         s = self.env.reset()
         for i in range(65):
             self.env.step(0)
-        s = resize(s, (72,72), anti_aliasing=False)
+        s = resize(s, RESIZE_DIM, anti_aliasing=False)
         s[s>0.3]=1
         s[s<=0.3]=0
         return s
@@ -77,7 +79,7 @@ class ResizeWrapper(gym.Wrapper):
     def __init__(self, env):
         super().__init__(env)
         self.env = env
-        self.action_space = gym.spaces.Discrete(5)
+        self.action_space = gym.spaces.Discrete(ACTION_SPACE_SIZE)
 
     def step(self, action):
         s, r, done, info = self.env.step(action)
@@ -85,7 +87,7 @@ class ResizeWrapper(gym.Wrapper):
             done = True
             r = -1000
         s = s[6:170,5:-5]
-        s = resize(s, (72,72), anti_aliasing=False)
+        s = resize(s, RESIZE_DIM, anti_aliasing=False)
         s[s>0.3]=1
         s[s<=0.3]=0
         return s, r, done, info
@@ -95,7 +97,7 @@ class ResizeWrapper(gym.Wrapper):
         for i in range(65):
             self.env.step(0)
         s = s[6:170,5:-5]
-        s = resize(s, (72,72), anti_aliasing=False)
+        s = resize(s, RESIZE_DIM, anti_aliasing=False)
         s[s>0.3]=1
         s[s<=0.3]=0
         return s
