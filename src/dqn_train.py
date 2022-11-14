@@ -119,7 +119,9 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, env)
 
             # This is pretty ugly... but making a fully fledged logger is pretty time consuming
             if use_wandb:
-                wandb.log({'mean_train_reward': mean_train_reward, 'frame_count': frame_count})
+                wandb.log({'mean_train_reward': mean_train_reward, 
+                           'frame_count': frame_count,
+                           'epsilon': epsilon})
 
         print('done')
 
