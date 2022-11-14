@@ -1,5 +1,5 @@
 import gym
-from env_wrapper import CropWrapper, ResizeWrapper, GridifyWrapper
+from env_wrapper import *
 
 def make_env(env_params, render_mode=None):
     env_name = env_params['env_name']
@@ -28,9 +28,9 @@ def make_mspacman(env_params, render_mode):
     wrapper = env_params['wrapper']
     if wrapper == 'crop':
         env = CropWrapper(env)
+    elif wrapper == 'stretch':
+        env = StretchWrapper(env)
     elif wrapper == 'resize':
         env = ResizeWrapper(env)
-    elif wrapper == 'grid':
-        env = GridifyWrapper(env)
 
     return env
