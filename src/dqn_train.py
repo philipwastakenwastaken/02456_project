@@ -118,7 +118,10 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, env)
                     break
 
             # bookkeeping
+            EPSILON_LOWER_LIMIT = 0.1
             epsilon *= num_episodes / (i / (num_episodes / 20) + num_episodes)  # decrease epsilon
+            epsilon = max(epsilon, EPSILON_LOWER_LIMIT) # Set lower limit
+
             epsilons.append(epsilon)
             rewards.append(ep_reward)
             lengths.append(j+1)

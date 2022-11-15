@@ -11,3 +11,5 @@ wandb_api_key.txt
 
 .DS_Store
 .vscode/
+
+.ipynb_checkpoint/

@@ -1,2 +1,0 @@
-1) HPC og script til at køre script via command line
-2) 
