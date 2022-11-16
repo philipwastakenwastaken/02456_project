@@ -2,6 +2,7 @@ import numpy as np
 import torch
 import wandb
 import warnings
+import time
 
 
 from model import QNetwork, ReplayMemory
@@ -10,28 +11,41 @@ from eval import eval_model
 warnings.filterwarnings("ignore")
 
 def validate_model(env, dqnet, dev, use_wandb, episode_num=9):
-    MODEL_VALIDATION_RATE = 10
+    MODEL_VALIDATION_RATE = 100
     if (episode_num + 1) % MODEL_VALIDATION_RATE == 0:
-        R_avg, frame_avg = validate(env, dqnet, dev)
-        print(f'Avg. reward: {R_avg} Avg. frame count: {frame_avg}')
+        time_start = time.perf_counter()
+        R_avg, frame_avg, count = validate(env, dqnet, dev)
+        time_end = time.perf_counter()
+
+        duration = time_end - time_start
+        print(f'Avg. reward: {R_avg} Avg. frame count: {frame_avg} Avg. duration: {duration}')
         if use_wandb:
             wandb.log({'validate/avg_reward': R_avg,
-                        'validate/avg_frame_count': frame_avg}, commit=False)
+                       'validate/avg_frame_count': frame_avg,
+                       'validate/sims_per_val': count,
+                       'validate/duration': duration}, 
+                       commit=False)
 
 def validate(env, dqnet, dev):
-    AVERAGE_COUNT = 50
+    TIME_CUTOFF = 20 # seconds
     
     R_avg = 0
     frame_avg = 0
-    for _ in range(AVERAGE_COUNT):
+    count = 0
+
+    # Playing a set number of games can get expensive as the model gets better and games last longer.
+    # Therefore, set a limit to how much time can be spent on simulating.
+    start = time.perf_counter()
+    while time.perf_counter() - start < TIME_CUTOFF:
         R, frame = eval_model(dqnet, env, dev)
         R_avg += R
         frame_avg += frame
+        count += 1
     
-    R_avg /= AVERAGE_COUNT
-    frame_avg /= AVERAGE_COUNT
+    R_avg /= count
+    frame_avg /= count
 
-    return R_avg, frame_avg
+    return R_avg, frame_avg, count
 
 
 def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, checkpoint, env):
