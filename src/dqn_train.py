@@ -54,10 +54,6 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, chec
         frame_count = 0
         episode_start = 0
 
-        if checkpoint is not None:
-            episode_start = checkpoint['episode_num']
-            epsilon = checkpoint['epsilon']
-
         for i in range(episode_start, num_episodes):
 
             # initialize new episode
