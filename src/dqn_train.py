@@ -141,23 +141,13 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, chec
 
             MODEL_SAVING_RATE = 10 # How often to save the model
             if (i + 1) % MODEL_SAVING_RATE == 0:
-                torch.save({'episode_num': i,
-                           'epsilon': epsilon,
-                           'optimizer_state_dict': dqnet.optimizer.state_dict(),
-                           'model_state_dict': dqnet.state_dict()},
-                            model_path,
-                           _use_new_zipfile_serialization=False)
+                dqnet.save(i, epsilon, model_path)
 
         print('done')
 
         # Save network weights
         print(model_path)
-        torch.save({'episode_num': i,
-                   'epsilon': epsilon,
-                   'optimizer_state_dict': dqnet.optimizer.state_dict(),
-                   'model_state_dict': dqnet.state_dict()},
-                    model_path,
-                   _use_new_zipfile_serialization=False)
+        dqnet.save(i, epsilon, model_path)
         print('Saved model')
 
         return rewards, lengths, losses, epsilons

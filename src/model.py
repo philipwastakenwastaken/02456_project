@@ -75,6 +75,14 @@ class QNetwork(nn.Module):
         for k in params.keys():
             params[k] = (1-tau) * params[k] + tau * new_params[k]
         self.load_state_dict(params)
+    
+    def save(self, episode_num, epsilon, model_path):
+        torch.save({'episode_num': episode_num,
+                    'epsilon': epsilon,
+                    'optimizer_state_dict': self.optimizer.state_dict(),
+                    'model_state_dict': self.state_dict()},
+                    model_path,
+                    _use_new_zipfile_serialization=False)
 
 
 class ReplayMemory(object):
