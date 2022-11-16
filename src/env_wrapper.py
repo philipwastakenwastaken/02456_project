@@ -17,12 +17,16 @@ class NopWrapper(gym.Wrapper):
 
     def step(self, action):
         s, r, done, info = self.env.step(action)
+        s[s < 76] = 0
+        s[s >= 76] = 255
         if info['lives'] == 2:
             done = True
         return s, r, done, info
 
     def reset(self):
         s = self.env.reset()
+        s[s < 76] = 0
+        s[s >= 76] = 255
         for i in range(65):
             self.env.step(0)
         return s
@@ -39,6 +43,8 @@ class CropWrapper(gym.Wrapper):
         if info['lives'] == 2:
             done = True
         s = s[6:170, 5:-5]
+        s[s < 76] = 0
+        s[s >= 76] = 255
         return s, r, done, info
 
     def reset(self):
@@ -46,6 +52,8 @@ class CropWrapper(gym.Wrapper):
         for i in range(65):
             self.env.step(0)
         s = s[6:170, 5:-5]
+        s[s < 76] = 0
+        s[s >= 76] = 255
         return s
 
 
@@ -60,8 +68,8 @@ class StretchWrapper(gym.Wrapper):
         if info['lives'] == 2:
             done = True
         s = resize(s, RESIZE_DIM, anti_aliasing=False)
-        s[s > 0.3] = 1
-        s[s <= 0.3] = 0
+        s[s > 0.135] = 1
+        s[s <= 0.135] = 0
         return s, r, done, info
 
     def reset(self):
@@ -69,8 +77,8 @@ class StretchWrapper(gym.Wrapper):
         for i in range(65):
             self.env.step(0)
         s = resize(s, RESIZE_DIM, anti_aliasing=False)
-        s[s > 0.3] = 1
-        s[s <= 0.3] = 0
+        s[s > 0.135] = 1
+        s[s <= 0.135] = 0
         return s
 
 
@@ -86,8 +94,8 @@ class ResizeWrapper(gym.Wrapper):
             done = True
         s = s[6:170, 5:-5]
         s = resize(s, RESIZE_DIM, anti_aliasing=False)
-        s[s > 0.3] = 1
-        s[s <= 0.3] = 0
+        s[s > 0.135] = 1
+        s[s <= 0.135] = 0
         return s, r, done, info
 
     def reset(self):
@@ -96,6 +104,6 @@ class ResizeWrapper(gym.Wrapper):
             self.env.step(0)
         s = s[6:170, 5:-5]
         s = resize(s, RESIZE_DIM, anti_aliasing=False)
-        s[s > 0.3] = 1
-        s[s <= 0.3] = 0
+        s[s > 0.135] = 1
+        s[s <= 0.135] = 0
         return s
