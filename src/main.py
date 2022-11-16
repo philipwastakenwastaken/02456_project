@@ -80,10 +80,8 @@ class Session:
         else:
             env = make_env(self.env_params, self.model_params)
 
-        total_reward, i = eval_model(self.dev,
-                                     self.eval_params,
-                                     self.model,
-                                     env)
+        self.dqnet.to(torch.device(self.dev))
+        total_reward, i = eval_model(self.model, env, self.dev)
 
     def setup_device(self):
         dev_option = self.session_params['device']
@@ -198,6 +196,9 @@ class Session:
                 "prefill_memory": self.train_params['prefill_memory'],
                 "episode_limit": self.train_params['episode_limit']
             }
+
+            #wandb.define_metric("validate/step")
+            #wandb.define_metric("validate/*", step_metric="validate/step")
 
             # Set a run name
             run_name = self.model_params['wrapper']

@@ -1,18 +1,37 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import torch
-import torch.nn as nn
-import torch.optim as optim
-import torch.nn.functional as F
-import gym
-import datetime
-import os
-from skimage import io
-from model import QNetwork, ReplayMemory
-from env_factory import make_env
 import wandb
 import warnings
+
+
+from model import QNetwork, ReplayMemory
+from eval import eval_model
+
 warnings.filterwarnings("ignore")
+
+def validate_model(env, dqnet, dev, use_wandb, episode_num=9):
+    MODEL_VALIDATION_RATE = 10
+    if (episode_num + 1) % MODEL_VALIDATION_RATE == 0:
+        R_avg, frame_avg = validate(env, dqnet, dev)
+        print(f'Avg. reward: {R_avg} Avg. frame count: {frame_avg}')
+        if use_wandb:
+            wandb.log({'validate/avg_reward': R_avg,
+                        'validate/avg_frame_count': frame_avg}, commit=False)
+
+def validate(env, dqnet, dev):
+    AVERAGE_COUNT = 50
+    
+    R_avg = 0
+    frame_avg = 0
+    for _ in range(AVERAGE_COUNT):
+        R, frame = eval_model(dqnet, env, dev)
+        R_avg += R
+        frame_avg += frame
+    
+    R_avg /= AVERAGE_COUNT
+    frame_avg /= AVERAGE_COUNT
+
+    return R_avg, frame_avg
 
 
 def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, checkpoint, env):
@@ -53,6 +72,7 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, chec
         rewards, lengths, losses, epsilons = [], [], [], []
         frame_count = 0
         episode_start = 0
+        validate_model(env, dqnet, dev, use_wandb)
 
         for i in range(episode_start, num_episodes):
 
@@ -133,15 +153,17 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, chec
                 print('%5d mean training reward: %5.2f' %
                       (i+1, mean_train_reward))
 
+            MODEL_SAVING_RATE = 10 # How often to save the model
+            if (i + 1) % MODEL_SAVING_RATE == 0:
+                dqnet.save(i, epsilon, model_path)
+            
+            validate_model(env, dqnet, dev, use_wandb, i)
+
             # This is pretty ugly... but making a fully fledged logger is pretty time consuming
             if use_wandb:
                 wandb.log({'mean_train_reward': mean_train_reward,
                            'frame_count': frame_count,
                            'epsilon': epsilon})
-
-            MODEL_SAVING_RATE = 10 # How often to save the model
-            if (i + 1) % MODEL_SAVING_RATE == 0:
-                dqnet.save(i, epsilon, model_path)
 
         print('done')
 
