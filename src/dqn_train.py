@@ -40,7 +40,7 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, chec
         s = env.reset()
         HEIGHT = s.shape[0]
         WIDTH = s.shape[1]
-        while replay_memory.count() < replay_memory_capacity:
+        while replay_memory.count() < 0.05 * replay_memory_capacity: # prefill 5%
             a = env.action_space.sample()
             s1, r, d, _ = env.step(a)
             replay_memory.add(s, a, r, s1, d)
@@ -55,7 +55,7 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, chec
         episode_start = 0
 
         for i in range(episode_start, num_episodes):
-
+            episode_frame_count = 0
             # initialize new episode
             s, ep_reward, ep_loss = env.reset(), 0, 0
             for j in range(episode_limit):
@@ -71,6 +71,7 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, chec
                 # perform action
                 s1, r, d, _ = env.step(a)
                 frame_count += 1
+                episode_frame_count += 1
 
                 # store experience in replay memory
                 replay_memory.add(s, a, r, s1, d)
@@ -121,8 +122,8 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, chec
 
             # bookkeeping
             EPSILON_LOWER_LIMIT = 0.1
-            epsilon *= num_episodes / (i / (num_episodes / 20) + num_episodes)  # decrease epsilon
-            epsilon = max(epsilon, EPSILON_LOWER_LIMIT) # Set lower limit
+            epsilon -= episode_frame_count / 1000000.0
+            epsilon = max(epsilon, EPSILON_LOWER_LIMIT) # Lower limit
 
             epsilons.append(epsilon)
             rewards.append(ep_reward)
