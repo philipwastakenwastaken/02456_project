@@ -2,5 +2,6 @@ n_inputs: 22528
 n_outputs: 5
 learning_rate: 0.00001
 optim: Adam
+weight_decay: 0.1
 model_path: ''
 wrapper: 'nop'

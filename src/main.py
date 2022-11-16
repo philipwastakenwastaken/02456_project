@@ -119,11 +119,13 @@ class Session:
 
         self.model = QNetwork(n_inputs=self.model_params['n_inputs'],
                               n_outputs=self.model_params['n_outputs'],
-                              learning_rate=self.model_params['learning_rate'])
+                              learning_rate=self.model_params['learning_rate'],
+                              weight_decay=self.model_params['weight_decay'])
 
         self.target_model = QNetwork(n_inputs=self.model_params['n_inputs'],
                                      n_outputs=self.model_params['n_outputs'],
-                                     learning_rate=self.model_params['learning_rate'])
+                                     learning_rate=self.model_params['learning_rate'],
+                                     weight_decay=self.model_params['weight_decay'])
 
         config_model_path = self.model_params['model_path']
         config_model_path_set = config_model_path != ''
@@ -194,7 +196,8 @@ class Session:
                 "tau": self.train_params['tau'],
                 "replay_memory_capacity": self.train_params['replay_memory_capacity'],
                 "prefill_memory": self.train_params['prefill_memory'],
-                "episode_limit": self.train_params['episode_limit']
+                "episode_limit": self.train_params['episode_limit'],
+                "weight_decay": self.model_params['weight_decay']
             }
 
             #wandb.define_metric("validate/step")
