@@ -15,7 +15,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, env):
+def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, checkpoint, env):
     # Train parameters
     num_episodes = train_params['num_episodes']
     episode_limit = train_params['episode_limit']
@@ -52,7 +52,13 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, env)
         epsilon = epsilon_start
         rewards, lengths, losses, epsilons = [], [], [], []
         frame_count = 0
-        for i in range(num_episodes):
+        episode_start = 0
+
+        if checkpoint is not None:
+            episode_start = checkpoint['episode_num']
+            epsilon = checkpoint['epsilon']
+
+        for i in range(episode_start, num_episodes):
 
             # initialize new episode
             s, ep_reward, ep_loss = env.reset(), 0, 0
@@ -137,12 +143,12 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, env)
                            'frame_count': frame_count,
                            'epsilon': epsilon})
 
-            MODEL_SAVING_RATE = 100 # How often to save the model
-            if i + 1 % MODEL_SAVING_RATE == 0:
+            MODEL_SAVING_RATE = 10 # How often to save the model
+            if (i + 1) % MODEL_SAVING_RATE == 0:
                 torch.save({'episode_num': i,
                            'epsilon': epsilon,
-                           'optimzer_state_dict': dqnet.optimizer.state_dict(),
-                           'model_state_ditc': dqnet.state_dict()},
+                           'optimizer_state_dict': dqnet.optimizer.state_dict(),
+                           'model_state_dict': dqnet.state_dict()},
                             model_path,
                            _use_new_zipfile_serialization=False)
 
@@ -152,8 +158,8 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, env)
         print(model_path)
         torch.save({'episode_num': i,
                    'epsilon': epsilon,
-                   'optimzer_state_dict': dqnet.optimizer.state_dict(),
-                   'model_state_ditc': dqnet.state_dict()},
+                   'optimizer_state_dict': dqnet.optimizer.state_dict(),
+                   'model_state_dict': dqnet.state_dict()},
                     model_path,
                    _use_new_zipfile_serialization=False)
         print('Saved model')
