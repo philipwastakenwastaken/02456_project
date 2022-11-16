@@ -53,6 +53,7 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, env)
         rewards, lengths, losses, epsilons = [], [], [], []
         frame_count = 0
         for i in range(num_episodes):
+            episode_frame_count = 0
 
             # initialize new episode
             s, ep_reward, ep_loss = env.reset(), 0, 0
@@ -69,6 +70,7 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, env)
                 # perform action
                 s1, r, d, _ = env.step(a)
                 frame_count += 1
+                episode_frame_count += 1
 
                 # store experience in replay memory
                 replay_memory.add(s, a, r, s1, d)
@@ -119,8 +121,9 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, env)
 
             # bookkeeping
             # epsilon *= num_episodes / (i / (num_episodes / 20) + num_episodes)  # decrease epsilon
-            epsilon -= 1.0 / 1000000.0
-            epsilon = max(epsilon, 0.1) # Lower limit
+            EPSILON_LOWER_LIMIT = 0.1
+            epsilon -= episode_frame_count / 1000000.0
+            epsilon = max(epsilon, EPSILON_LOWER_LIMIT) # Lower limit
 
             epsilons.append(epsilon)
             rewards.append(ep_reward)
