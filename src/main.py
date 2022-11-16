@@ -55,6 +55,7 @@ class Session:
                                                             self.target_model,
                                                             self.model_path,
                                                             self.use_wandb,
+                                                            self.checkpoint,
                                                             env)
 
         # On HPC cluster we don't want to render plots.
@@ -105,7 +106,19 @@ class Session:
 
         print(f'< device: {self.dev} >')
 
+
+    def load_checkpoint(self):
+        checkpoint = torch.load(self.model_path)
+        self.checkpoint = checkpoint
+        self.model.load_state_dict(checkpoint['model_state_dict'])
+        self.target_model.load_state_dict(checkpoint['model_state_dict'])
+        self.model.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+
+
     def setup_model(self):
+        self.checkpoint = None
+
+
         self.model = QNetwork(n_inputs=self.model_params['n_inputs'],
                               n_outputs=self.model_params['n_outputs'],
                               learning_rate=self.model_params['learning_rate'],
@@ -137,14 +150,14 @@ class Session:
         if config_model_path_set and is_train:
             self.model_path = os.path.join(
                 get_original_cwd(), 'models', config_model_path)
-            self.model.load_state_dict(torch.load(self.model_path))
+            self.load_checkpoint()
 
         # Case 3: model path is set and we want to run in plot or evaluate mode.
         #         Load model from path and continue.
         if config_model_path_set and not is_train:
             self.model_path = os.path.join(
                 get_original_cwd(), 'models', config_model_path)
-            self.model.load_state_dict(torch.load(self.model_path))
+            self.load_checkpoint()
 
         # Case 4: model path is not set and we want to run in plot or evaluate mode.
         #         As a fallback, simply load the name of the most recently created model.
@@ -161,7 +174,7 @@ class Session:
                     'No model path set with no fallback model found')
 
             self.model_path = names[0]
-            self.model.load_state_dict(torch.load(self.model_path))
+            self.load_checkpoint()
 
     def setup_wandb(self):
         self.use_wandb = self.session_params['use_wandb']

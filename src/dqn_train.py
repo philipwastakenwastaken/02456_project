@@ -15,7 +15,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, env):
+def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, checkpoint, env):
     # Train parameters
     num_episodes = train_params['num_episodes']
     episode_limit = train_params['episode_limit']
@@ -52,9 +52,10 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, env)
         epsilon = epsilon_start
         rewards, lengths, losses, epsilons = [], [], [], []
         frame_count = 0
-        for i in range(num_episodes):
-            episode_frame_count = 0
+        episode_start = 0
 
+        for i in range(episode_start, num_episodes):
+            episode_frame_count = 0
             # initialize new episode
             s, ep_reward, ep_loss = env.reset(), 0, 0
             for j in range(episode_limit):
@@ -120,7 +121,6 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, env)
                     break
 
             # bookkeeping
-            # epsilon *= num_episodes / (i / (num_episodes / 20) + num_episodes)  # decrease epsilon
             EPSILON_LOWER_LIMIT = 0.1
             epsilon -= episode_frame_count / 1000000.0
             epsilon = max(epsilon, EPSILON_LOWER_LIMIT) # Lower limit
@@ -140,11 +140,24 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, env)
                            'frame_count': frame_count,
                            'epsilon': epsilon})
 
+            MODEL_SAVING_RATE = 10 # How often to save the model
+            if (i + 1) % MODEL_SAVING_RATE == 0:
+                torch.save({'episode_num': i,
+                           'epsilon': epsilon,
+                           'optimizer_state_dict': dqnet.optimizer.state_dict(),
+                           'model_state_dict': dqnet.state_dict()},
+                            model_path,
+                           _use_new_zipfile_serialization=False)
+
         print('done')
 
         # Save network weights
         print(model_path)
-        torch.save(dqnet.state_dict(), model_path,
+        torch.save({'episode_num': i,
+                   'epsilon': epsilon,
+                   'optimizer_state_dict': dqnet.optimizer.state_dict(),
+                   'model_state_dict': dqnet.state_dict()},
+                    model_path,
                    _use_new_zipfile_serialization=False)
         print('Saved model')
 
