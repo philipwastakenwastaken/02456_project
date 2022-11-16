@@ -1,11 +1,6 @@
 num_episodes: 2
-<<<<<<< HEAD
-episode_limit: 300
-gamma: 0.99
-=======
 episode_limit: 10000
-gamma: 0.9
->>>>>>> main
+gamma: 0.99
 val_freq: 1
 epsilon_start: 1.0
 
