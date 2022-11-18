@@ -1,7 +1,7 @@
-n_inputs: 4480
+n_inputs: 3136
 n_outputs: 5
 learning_rate: 0.0003
 optim: Adam
 weight_decay: 0.1
-model_path: 'dm_2022_11_18_15DD51DD04D157975_dqnet.pt'
+model_path: ''
 wrapper: 'dm'
