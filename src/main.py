@@ -80,10 +80,8 @@ class Session:
         else:
             env = make_env(self.env_params, self.model_params)
 
-        total_reward, i = eval_model(self.dev,
-                                     self.eval_params,
-                                     self.model,
-                                     env)
+        self.dqnet.to(torch.device(self.dev))
+        total_reward, i = eval_model(self.model, env, self.dev)
 
     def setup_device(self):
         dev_option = self.session_params['device']
@@ -121,11 +119,13 @@ class Session:
 
         self.model = QNetwork(n_inputs=self.model_params['n_inputs'],
                               n_outputs=self.model_params['n_outputs'],
-                              learning_rate=self.model_params['learning_rate'])
+                              learning_rate=self.model_params['learning_rate'],
+                              weight_decay=self.model_params['weight_decay'])
 
         self.target_model = QNetwork(n_inputs=self.model_params['n_inputs'],
                                      n_outputs=self.model_params['n_outputs'],
-                                     learning_rate=self.model_params['learning_rate'])
+                                     learning_rate=self.model_params['learning_rate'],
+                                     weight_decay=self.model_params['weight_decay'])
 
         config_model_path = self.model_params['model_path']
         config_model_path_set = config_model_path != ''
@@ -180,7 +180,7 @@ class Session:
         if self.session_params['wandb_api_key'] != None:
             key = self.session_params['wandb_api_key']
 
-        print(f'< wandb: {self.use_wandb}')
+        print(f'< wandb: {self.use_wandb} >')
 
         if self.use_wandb and self.session_params['command'] == 'train':
             print("Using key: ", key)
@@ -196,8 +196,12 @@ class Session:
                 "tau": self.train_params['tau'],
                 "replay_memory_capacity": self.train_params['replay_memory_capacity'],
                 "prefill_memory": self.train_params['prefill_memory'],
-                "episode_limit": self.train_params['episode_limit']
+                "episode_limit": self.train_params['episode_limit'],
+                "weight_decay": self.model_params['weight_decay']
             }
+
+            #wandb.define_metric("validate/step")
+            #wandb.define_metric("validate/*", step_metric="validate/step")
 
             # Set a run name
             run_name = self.model_params['wrapper']

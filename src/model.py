@@ -15,7 +15,7 @@ warnings.filterwarnings("ignore")
 class QNetwork(nn.Module):
     """Q-network"""
 
-    def __init__(self, n_inputs, n_outputs, learning_rate):
+    def __init__(self, n_inputs, n_outputs, learning_rate, weight_decay):
         super(QNetwork, self).__init__()
         n_hidden = 2500
 
@@ -46,7 +46,7 @@ class QNetwork(nn.Module):
         self.out = nn.Linear(self.flat_dim, n_outputs, bias=True)
         torch.nn.init.normal_(self.out.weight, 0, 1)
 
-        self.optimizer = optim.Adam(self.parameters(), lr=learning_rate)
+        self.optimizer = optim.Adam(self.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
     def forward(self, x):
         x = x / 255.0
@@ -75,6 +75,14 @@ class QNetwork(nn.Module):
         for k in params.keys():
             params[k] = (1-tau) * params[k] + tau * new_params[k]
         self.load_state_dict(params)
+    
+    def save(self, episode_num, epsilon, model_path):
+        torch.save({'episode_num': episode_num,
+                    'epsilon': epsilon,
+                    'optimizer_state_dict': self.optimizer.state_dict(),
+                    'model_state_dict': self.state_dict()},
+                    model_path,
+                    _use_new_zipfile_serialization=False)
 
 
 class ReplayMemory(object):

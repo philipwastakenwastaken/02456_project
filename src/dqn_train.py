@@ -1,18 +1,37 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import torch
-import torch.nn as nn
-import torch.optim as optim
-import torch.nn.functional as F
-import gym
-import datetime
-import os
-from skimage import io
-from model import QNetwork, ReplayMemory
-from env_factory import make_env
 import wandb
 import warnings
+import time
+
+
+from model import QNetwork, ReplayMemory
+from eval import ModelValidator
+
 warnings.filterwarnings("ignore")
+
+def validate_model(env, dqnet, dev, use_wandb, episode_num=9):
+    MODEL_VALIDATION_RATE = 100
+    TIME_CUTOFF = 20 # seconds
+    if (episode_num + 1) % MODEL_VALIDATION_RATE == 0:
+
+        validator = ModelValidator(dqnet, env, dev, time_cutoff=TIME_CUTOFF)
+        run_info = validator.run()
+
+        print(f'Avg. reward: {run_info.reward_mean} \
+                Reward error: {run_info.reward_error} \
+                Avg. frame count: {run_info.frame_count_mean} \
+                Runs: {run_info.count()} \
+                Actual duration: {run_info.actual_duration}')
+        
+        if use_wandb:
+            wandb.log({'validate/avg_reward': run_info.reward_mean,
+                       'validate/avg_frame_count': run_info.frame_count_mean,
+                       'validate/sims_per_val': run_info.count(),
+                       'validate/conf_interval_lower': run_info.reward_error[0],
+                       'validate/conf_interval_upper': run_info.reward_error[1],
+                       'validate/duration': run_info.actual_duration}, 
+                       commit=False)
 
 
 def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, checkpoint, env):
@@ -40,7 +59,7 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, chec
         s = env.reset()
         HEIGHT = s.shape[0]
         WIDTH = s.shape[1]
-        while replay_memory.count() < replay_memory_capacity:
+        while replay_memory.count() < 0.05 * replay_memory_capacity: # prefill 5%
             a = env.action_space.sample()
             s1, r, d, _ = env.step(a)
             replay_memory.add(s, a, r, s1, d)
@@ -53,9 +72,10 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, chec
         rewards, lengths, losses, epsilons = [], [], [], []
         frame_count = 0
         episode_start = 0
+        validate_model(env, dqnet, dev, use_wandb)
 
         for i in range(episode_start, num_episodes):
-
+            episode_frame_count = 0
             # initialize new episode
             s, ep_reward, ep_loss = env.reset(), 0, 0
             for j in range(episode_limit):
@@ -71,6 +91,7 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, chec
                 # perform action
                 s1, r, d, _ = env.step(a)
                 frame_count += 1
+                episode_frame_count += 1
 
                 # store experience in replay memory
                 replay_memory.add(s, a, r, s1, d)
@@ -121,8 +142,8 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, chec
 
             # bookkeeping
             EPSILON_LOWER_LIMIT = 0.1
-            epsilon *= num_episodes / (i / (num_episodes / 20) + num_episodes)  # decrease epsilon
-            epsilon = max(epsilon, EPSILON_LOWER_LIMIT) # Set lower limit
+            epsilon -= episode_frame_count / 1000000.0
+            epsilon = max(epsilon, EPSILON_LOWER_LIMIT) # Lower limit
 
             epsilons.append(epsilon)
             rewards.append(ep_reward)
@@ -133,31 +154,23 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, chec
                 print('%5d mean training reward: %5.2f' %
                       (i+1, mean_train_reward))
 
+            MODEL_SAVING_RATE = 10 # How often to save the model
+            if (i + 1) % MODEL_SAVING_RATE == 0:
+                dqnet.save(i, epsilon, model_path)
+            
+            validate_model(env, dqnet, dev, use_wandb, i)
+
             # This is pretty ugly... but making a fully fledged logger is pretty time consuming
             if use_wandb:
                 wandb.log({'mean_train_reward': mean_train_reward,
                            'frame_count': frame_count,
                            'epsilon': epsilon})
 
-            MODEL_SAVING_RATE = 10 # How often to save the model
-            if (i + 1) % MODEL_SAVING_RATE == 0:
-                torch.save({'episode_num': i,
-                           'epsilon': epsilon,
-                           'optimizer_state_dict': dqnet.optimizer.state_dict(),
-                           'model_state_dict': dqnet.state_dict()},
-                            model_path,
-                           _use_new_zipfile_serialization=False)
-
         print('done')
 
         # Save network weights
         print(model_path)
-        torch.save({'episode_num': i,
-                   'epsilon': epsilon,
-                   'optimizer_state_dict': dqnet.optimizer.state_dict(),
-                   'model_state_dict': dqnet.state_dict()},
-                    model_path,
-                   _use_new_zipfile_serialization=False)
+        dqnet.save(i, epsilon, model_path)
         print('Saved model')
 
         return rewards, lengths, losses, epsilons
