@@ -134,9 +134,10 @@ class ResizeWrapper(gym.Wrapper):
         s[s <= 0.135] = 0
         return s
 
+ACTION_SPACE_SIZE = 5
 BINARY_THRESHOLD = 0.135
-RESIZE_DIM_DM = (110, 84)
 CROP_RANGE = 84
+RESIZE_DIM_NEW = (110, CROP_RANGE)
 
 class DMWrapper(gym.Wrapper):
     def __init__(self, env):
@@ -154,8 +155,8 @@ class DMWrapper(gym.Wrapper):
         s, r, done, info = self.env.step(action)
         if info['lives'] == 2:
             done = True
-        s = resize(s, RESIZE_DIM_DM, anti_aliasing=False)
-        s = s[0:CROP_RANGE, :]
+        s = resize(s, RESIZE_DIM_NEW, anti_aliasing=False)
+        s = s[3:CROP_RANGE+3, :]
 
         self.binarize(s)
 
@@ -163,11 +164,10 @@ class DMWrapper(gym.Wrapper):
 
     def reset(self):
         s = self.env.reset()
+        print(s.shape)
         for _ in range(65):
             self.env.step(0)
-        s = resize(s, RESIZE_DIM_DM, anti_aliasing=False)
-        s = s[0:CROP_RANGE, :]
-
+        s = resize(s, RESIZE_DIM_NEW, anti_aliasing=False)
+        s = s[3:CROP_RANGE+3, :]
         self.binarize(s)
-
         return s
