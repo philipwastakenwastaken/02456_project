@@ -180,7 +180,7 @@ class Session:
         if self.session_params['wandb_api_key'] != None:
             key = self.session_params['wandb_api_key']
 
-        print(f'< wandb: {self.use_wandb}')
+        print(f'< wandb: {self.use_wandb} >')
 
         if self.use_wandb and self.session_params['command'] == 'train':
             print("Using key: ", key)

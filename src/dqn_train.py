@@ -6,46 +6,32 @@ import time
 
 
 from model import QNetwork, ReplayMemory
-from eval import eval_model
+from eval import ModelValidator
 
 warnings.filterwarnings("ignore")
 
 def validate_model(env, dqnet, dev, use_wandb, episode_num=9):
-    MODEL_VALIDATION_RATE = 100
-    if (episode_num + 1) % MODEL_VALIDATION_RATE == 0:
-        time_start = time.perf_counter()
-        R_avg, frame_avg, count = validate(env, dqnet, dev)
-        time_end = time.perf_counter()
-
-        duration = time_end - time_start
-        print(f'Avg. reward: {R_avg} Avg. frame count: {frame_avg} Avg. duration: {duration}')
-        if use_wandb:
-            wandb.log({'validate/avg_reward': R_avg,
-                       'validate/avg_frame_count': frame_avg,
-                       'validate/sims_per_val': count,
-                       'validate/duration': duration}, 
-                       commit=False)
-
-def validate(env, dqnet, dev):
+    MODEL_VALIDATION_RATE = 10
     TIME_CUTOFF = 20 # seconds
-    
-    R_avg = 0
-    frame_avg = 0
-    count = 0
+    if (episode_num + 1) % MODEL_VALIDATION_RATE == 0:
 
-    # Playing a set number of games can get expensive as the model gets better and games last longer.
-    # Therefore, set a limit to how much time can be spent on simulating.
-    start = time.perf_counter()
-    while time.perf_counter() - start < TIME_CUTOFF:
-        R, frame = eval_model(dqnet, env, dev)
-        R_avg += R
-        frame_avg += frame
-        count += 1
-    
-    R_avg /= count
-    frame_avg /= count
+        validator = ModelValidator(dqnet, env, dev, time_cutoff=TIME_CUTOFF)
+        run_info = validator.run()
 
-    return R_avg, frame_avg, count
+        print(f'Avg. reward: {run_info.reward_mean} \
+                Reward error: {run_info.reward_error} \
+                Avg. frame count: {run_info.frame_count_mean} \
+                Runs: {run_info.count()} \
+                Actual duration: {run_info.actual_duration}')
+        
+        if use_wandb:
+            wandb.log({'validate/avg_reward': run_info.reward_mean,
+                       'validate/avg_frame_count': run_info.frame_count_mean,
+                       'validate/sims_per_val': run_info.count(),
+                       'validate/conf_interval_lower': run_info.reward_error[0],
+                       'validate/conf_interval_upper': run_info.reward_error[1],
+                       'validate/duration': run_info.actual_duration}, 
+                       commit=False)
 
 
 def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, checkpoint, env):
