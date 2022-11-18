@@ -11,7 +11,7 @@ from eval import ModelValidator
 warnings.filterwarnings("ignore")
 
 def validate_model(env, dqnet, dev, use_wandb, episode_num=9):
-    MODEL_VALIDATION_RATE = 10
+    MODEL_VALIDATION_RATE = 100
     TIME_CUTOFF = 20 # seconds
     if (episode_num + 1) % MODEL_VALIDATION_RATE == 0:
 
