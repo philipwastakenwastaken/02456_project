@@ -107,3 +107,51 @@ class ResizeWrapper(gym.Wrapper):
         s[s > 0.135] = 1
         s[s <= 0.135] = 0
         return s
+
+class ResizeWrapper(gym.Wrapper):
+    def __init__(self, env):
+        super().__init__(env)
+        self.env = env
+        self.action_space = gym.spaces.Discrete(ACTION_SPACE_SIZE)
+
+    def step(self, action):
+        s, r, done, info = self.env.step(action)
+        if info['lives'] == 2:
+            done = True
+        s = s[6:170, 5:-5]
+        s = resize(s, RESIZE_DIM, anti_aliasing=False)
+        s[s > 0.135] = 1
+        s[s <= 0.135] = 0
+        return s, r, done, info
+
+    def reset(self):
+        s = self.env.reset()
+        for i in range(65):
+            self.env.step(0)
+        s = s[6:170, 5:-5]
+        s = resize(s, RESIZE_DIM, anti_aliasing=False)
+        s[s > 0.135] = 1
+        s[s <= 0.135] = 0
+        return s
+
+class DMWrapper(gym.Wrapper):
+    def __init__(self, env):
+        super().__init__(env)
+        self.env = env
+        self.action_space = gym.spaces.Discrete(ACTION_SPACE_SIZE)
+
+    def step(self, action):
+        s, r, done, info = self.env.step(action)
+        if info['lives'] == 2:
+            done = True
+        s = resize(s, (110, 84), anti_aliasing=False)
+        s = s[0:84, :]
+        return s, r, done, info
+
+    def reset(self):
+        s = self.env.reset()
+        for _ in range(65):
+            self.env.step(0)
+        s = resize(s, (110, 84), anti_aliasing=False)
+        s = s[0:84, :]
+        return s

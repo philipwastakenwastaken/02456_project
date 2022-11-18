@@ -35,6 +35,8 @@ def make_mspacman(env_params, model_params, render_mode):
         env = StretchWrapper(env)
     elif wrapper == 'resize':
         env = ResizeWrapper(env)
+    elif wrapper == 'dm':
+        env = DMWrapper(env)
     elif wrapper == 'nop':
         env = NopWrapper(env)
 
