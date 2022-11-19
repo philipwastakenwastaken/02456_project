@@ -11,7 +11,7 @@ from eval import ModelValidator
 warnings.filterwarnings("ignore")
 
 def validate_model(env, dqnet, dev, use_wandb, episode_num=9):
-    MODEL_VALIDATION_RATE = 100
+    MODEL_VALIDATION_RATE = 1
     TIME_CUTOFF = 20 # seconds
     if (episode_num + 1) % MODEL_VALIDATION_RATE == 0:
 
@@ -19,18 +19,15 @@ def validate_model(env, dqnet, dev, use_wandb, episode_num=9):
         run_info = validator.run()
 
         print(f'Avg. reward: {run_info.reward_mean} \
-                Reward error: {run_info.reward_error} \
                 Avg. frame count: {run_info.frame_count_mean} \
                 Runs: {run_info.count()} \
                 Actual duration: {run_info.actual_duration}')
-        
+
         if use_wandb:
             wandb.log({'validate/avg_reward': run_info.reward_mean,
                        'validate/avg_frame_count': run_info.frame_count_mean,
                        'validate/sims_per_val': run_info.count(),
-                       'validate/conf_interval_lower': run_info.reward_error[0],
-                       'validate/conf_interval_upper': run_info.reward_error[1],
-                       'validate/duration': run_info.actual_duration}, 
+                       'validate/duration': run_info.actual_duration},
                        commit=False)
 
 
@@ -157,7 +154,7 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, chec
             MODEL_SAVING_RATE = 10 # How often to save the model
             if (i + 1) % MODEL_SAVING_RATE == 0:
                 dqnet.save(i, epsilon, model_path)
-            
+
             validate_model(env, dqnet, dev, use_wandb, i)
 
             # This is pretty ugly... but making a fully fledged logger is pretty time consuming

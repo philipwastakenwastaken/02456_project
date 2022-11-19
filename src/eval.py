@@ -6,7 +6,7 @@ import scipy.stats as st
 
 warnings.filterwarnings("ignore")
 
-    
+
 
 
 def eval_model(dqnet, env, dev):
@@ -34,21 +34,14 @@ class ValidationRunInfo:
         self.frame_counts = []
         self.rewards = []
         self.terminated = False
-    
+
     def add_run(self, reward, frame_count):
         if self.count() == 0:
             self.start_time = time.perf_counter()
 
         self.rewards.append(reward)
         self.frame_counts.append(frame_count)
-    
-    def reward_error(self):
-        return st.t.interval(0.95, 
-                             self.count() - 1, 
-                             loc=np.mean(self.rewards), 
-                             scale=st.sem(self.rewards))
 
-    
     def done(self, total_time):
         self.frame_counts = np.array(self.frame_counts)
         self.rewards = np.array(self.rewards)
@@ -56,12 +49,9 @@ class ValidationRunInfo:
         self.reward_mean = np.mean(self.rewards)
         self.frame_count_mean = np.mean(self.frame_counts)
 
-        # 95% conf. interval
-        self.reward_error = self.reward_error()
-        
         self.actual_duration = total_time
         self.terminated = True
-    
+
     def count(self):
         return len(self.rewards)
 
@@ -72,7 +62,7 @@ class ModelValidator:
         self.dev = dev
         self.time_cutoff = time_cutoff
         self.run_info = ValidationRunInfo()
-    
+
     # Simulate games until time cutoff has been reached
     def run(self):
         start = time.perf_counter()
@@ -80,7 +70,7 @@ class ModelValidator:
             R, frame = eval_model(self.model, self.env, self.dev)
             self.run_info.add_run(R, frame)
         total_time = time.perf_counter() - start
-        
+
         self.run_info.done(total_time)
-        
+
         return self.run_info
