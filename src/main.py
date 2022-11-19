@@ -36,11 +36,11 @@ class Session:
         np.random.seed(self.session_params['seed'])
 
         self.setup_device()
-        self.setup_wandb()
         self.setup_model()
+        self.setup_wandb()
 
         start_time = datetime.datetime.now()
-        print(f'< start time: {start_time}')
+        print(f'< start time: {start_time} >')
 
         if self.session_params['command'] == 'train':
             self.train()
@@ -178,6 +178,8 @@ class Session:
             self.model_path = names[0]
             self.load_checkpoint()
 
+        print(f'< model path: {self.model_path} >')
+
     def setup_wandb(self):
         self.use_wandb = self.session_params['use_wandb']
 
@@ -217,6 +219,7 @@ class Session:
             wandb.run.name = run_name
 
             wandb.run.summary["start_time"] = datetime.datetime.now()
+            wandb.run.summary["model_path"] = self.model_path
 
 
 @hydra.main(config_path="hparams/", config_name="default_config")
