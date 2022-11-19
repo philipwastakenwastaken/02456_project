@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 import random
+import datetime
 
 import hydra
 from hydra.utils import get_original_cwd
@@ -37,6 +38,9 @@ class Session:
         self.setup_device()
         self.setup_wandb()
         self.setup_model()
+
+        start_time = datetime.datetime.now()
+        print(f'< start time: {start_time}')
 
         if self.session_params['command'] == 'train':
             self.train()
@@ -211,7 +215,8 @@ class Session:
             run_name += '-' + 'eps=' + str(self.train_params['num_episodes'])
             run_name += '-' + 'gamma=' + str(self.train_params['gamma'])
             wandb.run.name = run_name
-            wandb.run.save()
+
+            wandb.run.summary["start_time"] = datetime.datetime.now()
 
 
 @hydra.main(config_path="hparams/", config_name="default_config")
