@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import wandb
 import warnings
-import time
+import datetime
 
 
 from model import QNetwork, ReplayMemory
@@ -11,16 +11,18 @@ from eval import ModelValidator
 warnings.filterwarnings("ignore")
 
 def validate_model(env, dqnet, dev, use_wandb, episode_num=9):
-    MODEL_VALIDATION_RATE = 1
+    MODEL_VALIDATION_RATE = 100
     TIME_CUTOFF = 20 # seconds
     if (episode_num + 1) % MODEL_VALIDATION_RATE == 0:
 
         validator = ModelValidator(dqnet, env, dev, time_cutoff=TIME_CUTOFF)
         run_info = validator.run()
 
+        current_time = datetime.datetime.now()
         print(f'Avg. reward: {run_info.reward_mean} \
                 Avg. frame count: {run_info.frame_count_mean} \
                 Runs: {run_info.count()} \
+                Current time: {current_time} \
                 Actual duration: {run_info.actual_duration}')
 
         if use_wandb:
@@ -162,6 +164,7 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, chec
                 wandb.log({'mean_train_reward': mean_train_reward,
                            'frame_count': frame_count,
                            'epsilon': epsilon})
+                wandb.run.summary["last_recorded_time"] = datetime.datetime.now()
 
         print('done')
 
