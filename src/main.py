@@ -215,7 +215,6 @@ class Session:
             run_name += '-' + 'eps=' + str(self.train_params['num_episodes'])
             run_name += '-' + 'gamma=' + str(self.train_params['gamma'])
             wandb.run.name = run_name
-            wandb.run.save()
 
             wandb.run.summary["start_time"] = datetime.datetime.now()
 
