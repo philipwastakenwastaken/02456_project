@@ -90,9 +90,14 @@ class ReplayMemory(object):
         #self.size = size
         self.memory = deque(maxlen=capacity)
 
-    def add(self, *args):
+    def add(self, s, a, r, s1, d):
         """Add experience to memory."""
-        self.memory.append([*args])
+        s *= 255
+        s = s.astype('uint8')
+
+        s1 *= 255
+        s1 = s1.astype('uint8')
+        self.memory.append([s, a, r, s1, d])
 
     def sample(self, batch_size):
         """Sample batch of experiences from memory with replacement."""
