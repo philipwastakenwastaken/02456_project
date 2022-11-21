@@ -42,5 +42,9 @@ def make_mspacman(env_params, model_params, render_mode):
 
     elif wrapper == 'scale72':
         env = Scale72Wrapper(env)
+    
+    elif wrapper == 'dm':
+        env = DMWrapper(env)
+
 
     return env

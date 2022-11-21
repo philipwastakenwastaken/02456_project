@@ -138,7 +138,6 @@ class DMWrapper(gym.Wrapper):
 
     def reset(self):
         s = self.env.reset()
-        print(s.shape)
         for _ in range(65):
             self.env.step(0)
         s = resize(s, RESIZE_DIM_NEW, anti_aliasing=False)
