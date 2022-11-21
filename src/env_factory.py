@@ -18,7 +18,6 @@ def make_asterix(env_params, render_mode):
                    full_action_space=False,
                    obs_type='grayscale',
                    render_mode=render_mode)
-
     return env
 
 
@@ -27,17 +26,21 @@ def make_mspacman(env_params, model_params, render_mode):
                    full_action_space=False,
                    obs_type='grayscale',
                    render_mode=render_mode)
-
     wrapper = model_params['wrapper']
-    if wrapper == 'crop':
-        env = CropWrapper(env)
-    elif wrapper == 'stretch':
-        env = StretchWrapper(env)
-    elif wrapper == 'resize':
-        env = ResizeWrapper(env)
-    elif wrapper == 'dm':
-        env = DMWrapper(env)
-    elif wrapper == 'nop':
+
+    if wrapper == 'gray':
         env = NopWrapper(env)
+
+    elif wrapper == 'crop':
+        env = CropWrapper(env)
+
+    elif wrapper == 'scale120':
+        env = Scale120Wrapper(env)
+
+    elif wrapper == 'scale84':
+        env = Scale84Wrapper(env)
+
+    elif wrapper == 'scale72':
+        env = Scale72Wrapper(env)
 
     return env

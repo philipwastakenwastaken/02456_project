@@ -1,7 +1,7 @@
-n_inputs: 1600
+n_inputs: 7744
 n_outputs: 5
 learning_rate: 0.00001
 optim: Adam
-weight_decay: 0.1
+weight_decay: 0.0
 model_path: ''
-wrapper: 'stretch'
+wrapper: 'scale120'
