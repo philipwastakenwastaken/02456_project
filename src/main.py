@@ -84,7 +84,7 @@ class Session:
         else:
             env = make_env(self.env_params, self.model_params)
 
-        self.dqnet.to(torch.device(self.dev))
+        self.model.to(torch.device(self.dev))
         total_reward, i = eval_model(self.model, env, self.dev)
 
     def setup_device(self):

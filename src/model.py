@@ -49,8 +49,6 @@ class QNetwork(nn.Module):
         self.optimizer = optim.Adam(self.parameters(), lr=learning_rate, weight_decay=weight_decay)
 
     def forward(self, x):
-        x = x / 255.0
-
         x = self.conv1(x)
         x = F.relu(x)
         #x = self.pool1(x)
