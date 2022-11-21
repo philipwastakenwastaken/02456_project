@@ -36,11 +36,11 @@ class QNetwork(nn.Module):
         self.conv2_bn = nn.BatchNorm2d(64)
 
         self.conv3 = nn.Conv2d(in_channels=64,
-                               out_channels=64,
+                               out_channels=128,
                                kernel_size=3,
                                stride=1,
                                padding=0)
-        self.conv3_bn = nn.BatchNorm2d(64)
+        self.conv3_bn = nn.BatchNorm2d(128)
 
         #self.linear = nn.Linear(960, n_hidden, bias=True)
         #torch.nn.init.normal_(self.linear.weight, 0, 1)

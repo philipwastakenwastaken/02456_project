@@ -1,4 +1,4 @@
-n_inputs: 16320
+n_inputs: 32640
 n_outputs: 5
 learning_rate: 0.0003
 optim: Adam
