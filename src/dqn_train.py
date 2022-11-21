@@ -3,6 +3,7 @@ import torch
 import wandb
 import warnings
 import datetime
+from pympler.asizeof import asizeof
 
 
 from model import QNetwork, ReplayMemory
@@ -102,8 +103,15 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, chec
                     batch = np.array(replay_memory.sample(batch_size))
                     ss, aa, rr, ss1, dd = batch[:, 0], batch[:,
                                                              1], batch[:, 2], batch[:, 3], batch[:, 4]
+
                     ss = np.stack(ss)
                     ss1 = np.stack(ss1)
+
+                    # Convert back to float32 from uint8
+                    ss = ss.astype('float32')
+                    ss1 = ss1.astype('float32')
+                    ss /= 255
+                    ss1 /= 255
 
                     # do forward pass of batch
                     dqnet.optimizer.zero_grad()
@@ -148,6 +156,7 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, chec
             rewards.append(ep_reward)
             lengths.append(j+1)
             losses.append(ep_loss)
+
             mean_train_reward = np.mean(rewards[-val_freq:])
             if (i+1) % val_freq == 0:
                 print('%5d mean training reward: %5.2f' %
