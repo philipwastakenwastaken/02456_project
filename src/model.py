@@ -24,7 +24,7 @@ class QNetwork(nn.Module):
                                kernel_size=8,
                                stride=4,
                                padding=0)
-        #self.pool1 = nn.MaxPool2d(3,stride=2)
+        # self.pool1 = nn.MaxPool2d(3,stride=2)
         self.conv1_bn = nn.BatchNorm2d(32)
 
         self.conv2 = nn.Conv2d(in_channels=32,
@@ -32,7 +32,7 @@ class QNetwork(nn.Module):
                                kernel_size=4,
                                stride=2,
                                padding=0)
-        #self.pool2 = nn.MaxPool2d(3,stride=2)
+        self.pool2 = nn.MaxPool2d(2,stride=1)
         self.conv2_bn = nn.BatchNorm2d(64)
 
         self.conv3 = nn.Conv2d(in_channels=64,
@@ -56,17 +56,17 @@ class QNetwork(nn.Module):
 
         x = self.conv1(x)
         x = F.relu(x)
-        #x = self.pool1(x)
-        x = self.conv1_bn(x)
+        # x = self.pool1(x)
+        # x = self.conv1_bn(x)
 
         x = self.conv2(x)
         x = F.relu(x)
-        #x = self.pool2(x)
-        x = self.conv2_bn(x)
+        # x = self.pool2(x)
+        # x = self.conv2_bn(x)
 
         x = self.conv3(x)
         x = F.relu(x)
-        x = self.conv3_bn(x)
+        # x = self.conv3_bn(x)
 
         b_size = x.shape[0]
         x = x.reshape((b_size, self.flat_dim))
