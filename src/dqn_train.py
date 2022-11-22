@@ -3,8 +3,6 @@ import torch
 import wandb
 import warnings
 import datetime
-from pympler.asizeof import asizeof
-
 
 from model import QNetwork, ReplayMemory
 from eval import ModelValidator
