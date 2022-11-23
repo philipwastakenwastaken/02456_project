@@ -110,7 +110,7 @@ class Session:
 
 
     def load_checkpoint(self):
-        checkpoint = torch.load(self.model_path)
+        checkpoint = torch.load(self.model_path, map_location=torch.device(self.dev))
         self.checkpoint = checkpoint
         self.model.load_state_dict(checkpoint['model_state_dict'])
         self.target_model.load_state_dict(checkpoint['model_state_dict'])
