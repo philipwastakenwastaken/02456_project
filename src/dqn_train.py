@@ -105,12 +105,6 @@ def train_dq_model(dev, train_params, dqnet, target, model_path, use_wandb, chec
                     ss = np.stack(ss)
                     ss1 = np.stack(ss1)
 
-                    # Convert back to float32 from uint8
-                    ss = ss.astype('float32')
-                    ss1 = ss1.astype('float32')
-                    ss /= 255
-                    ss1 /= 255
-
                     # do forward pass of batch
                     dqnet.optimizer.zero_grad()
                     Q = dqnet(torch.from_numpy(ss.reshape(

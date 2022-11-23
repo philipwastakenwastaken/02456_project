@@ -73,7 +73,7 @@ class QNetwork(nn.Module):
         for k in params.keys():
             params[k] = (1-tau) * params[k] + tau * new_params[k]
         self.load_state_dict(params)
-    
+
     def save(self, episode_num, epsilon, model_path):
         torch.save({'episode_num': episode_num,
                     'epsilon': epsilon,
@@ -92,11 +92,6 @@ class ReplayMemory(object):
 
     def add(self, s, a, r, s1, d):
         """Add experience to memory."""
-        s *= 255
-        s = s.astype('uint8')
-
-        s1 *= 255
-        s1 = s1.astype('uint8')
         self.memory.append([s, a, r, s1, d])
 
     def sample(self, batch_size):
