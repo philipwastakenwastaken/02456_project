@@ -1,0 +1,7 @@
+n_inputs: 1024
+n_outputs: 5
+learning_rate: 0.0003
+optim: Adam
+weight_decay: 0.0
+model_path: ''
+wrapper: 'scale60'
