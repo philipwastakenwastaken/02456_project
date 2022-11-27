@@ -161,3 +161,26 @@ class Scale48Wrapper(gym.Wrapper):
         s = s[3:170, 5:-5]
         s = resize(s, self.resize_dim, anti_aliasing=False)
         return s
+
+class Scale36Wrapper(gym.Wrapper):
+    def __init__(self, env):
+        super().__init__(env)
+        self.env = env
+        self.action_space = gym.spaces.Discrete(ACTION_SPACE_SIZE)
+        self.resize_dim = (36,36)
+
+    def step(self, action):
+        s, r, done, info = self.env.step(action)
+        if info['lives'] == 2:
+            done = True
+        s = s[3:170, 5:-5]
+        s = resize(s, self.resize_dim, anti_aliasing=False)
+        return s, r, done, info
+
+    def reset(self):
+        s = self.env.reset()
+        for i in range(65):
+            self.env.step(0)
+        s = s[3:170, 5:-5]
+        s = resize(s, self.resize_dim, anti_aliasing=False)
+        return s

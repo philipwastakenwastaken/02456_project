@@ -49,5 +49,9 @@ def make_mspacman(env_params, model_params, render_mode):
     elif wrapper == 'scale48':
         return Scale48Wrapper(env)
 
-    print("Wrapper init error!")
+    elif wrapper == 'scale36':
+        return Scale36Wrapper(env)
+
+
+    print("WRONG WRAPPER NAME")
     return
