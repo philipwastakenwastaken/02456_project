@@ -1,4 +1,4 @@
-num_episodes: 30000
+num_episodes: 20000
 episode_limit: 10000
 gamma: 0.99
 val_freq: 1
@@ -6,5 +6,5 @@ epsilon_start: 1.0
 
 batch_size: 32
 tau: 0.01
-replay_memory_capacity: 150000
+replay_memory_capacity: 50000
 prefill_memory: True
